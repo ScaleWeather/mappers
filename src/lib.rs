@@ -1,8 +1,8 @@
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
-    }
-}
+//! Library with methods to do computations
+//! of geographical projections.
+//! Closely follows algorithms and instructions in:
+//! <https://pubs.er.usgs.gov/publication/pp1395>
+
+mod constants;
+mod errors;
+pub mod projections;
