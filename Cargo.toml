@@ -1,11 +1,18 @@
 [package]
 name = "mappers"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2021"
+description = "Pure Rust geographical projections library"
+repository = "https://github.com/ScaleWeather/mappers"
+readme = "README.md"
+authors = ["Jakub Lewandowski <scaleweather@gmail.com>"]
+keywords = ["geography", "map", "projection"]
+categories = ["mathematics", "science"]
+license = "Apache-2.0"
+exclude = [".github/*", ".vscode/*", ".idea/*", "data/*"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 float-cmp = "0.9"
 thiserror = "1.0"
-
