@@ -6,10 +6,9 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
 use super::{LambertConicConformal, Projection};
 
 impl LambertConicConformal {
-    /// LCC projection constructor from reference longitude
+    /// LCC projection constructor from reference longitude, latitude
     /// and two standard parallels.
-    /// Defaults the reference latitude to 0.0
-    pub fn new(lon_0: f64, lat_1: f64, lat_2: f64) -> Result<Self, ProjectionError> {
+    pub fn new(lon_0: f64, lat_0: f64, lat_1: f64, lat_2: f64) -> Result<Self, ProjectionError> {
         if approx_eq!(f64, lat_1, lat_2) {
             return Err(ProjectionError::IncorrectParams(
                 "standard parallels cannot be equal",
@@ -29,8 +28,6 @@ impl LambertConicConformal {
                 "one of params is not finite",
             ));
         }
-
-        let lat_0: f64 = 0.0;
 
         let phi_0 = lat_0.to_radians();
         let phi_1 = lat_1.to_radians();
@@ -159,7 +156,7 @@ mod tests {
 
     #[test]
     fn project() {
-        let proj = LambertConicConformal::new(18.0, 30.0, 60.0).unwrap();
+        let proj = LambertConicConformal::new(18.0, 0.0, 30.0, 60.0).unwrap();
 
         let (lon_0, lat_0) = (18.58973722443749, 54.41412855026378);
 
