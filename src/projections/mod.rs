@@ -5,7 +5,6 @@ pub trait Projection {
     fn inverse_project(&self, x: f64, y: f64) -> (f64, f64);
 }
 
-
 /// Front-facing struct of Lambert Conformal Conic projection.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
 pub struct LambertConicConformal {

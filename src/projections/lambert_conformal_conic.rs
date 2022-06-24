@@ -3,7 +3,7 @@ use crate::errors::ProjectionError;
 use float_cmp::approx_eq;
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
 
-use super::{Projection, LambertConicConformal};
+use super::{LambertConicConformal, Projection};
 
 impl LambertConicConformal {
     /// LCC projection constructor from reference longitude
