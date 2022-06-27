@@ -3,7 +3,7 @@ use crate::errors::ProjectionError;
 use float_cmp::approx_eq;
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
 
-use super::{LambertConicConformal, Projection};
+use crate::{LambertConicConformal, Projection};
 
 impl LambertConicConformal {
     /// LCC projection constructor from reference longitude, latitude
@@ -16,11 +16,15 @@ impl LambertConicConformal {
         }
 
         if !(-180.0..180.0).contains(&lon_0) {
-            return Err(ProjectionError::IncorrectParams("longitude out of bounds"));
+            return Err(ProjectionError::IncorrectParams(
+                "longitude must be between -180..180",
+            ));
         }
 
         if !(-90.0..90.0).contains(&lat_1) || !(-90.0..90.0).contains(&lat_2) {
-            return Err(ProjectionError::IncorrectParams("latitude out of bounds"));
+            return Err(ProjectionError::IncorrectParams(
+                "latitude must be between -90..90",
+            ));
         }
 
         if !lon_0.is_finite() || !lat_1.is_finite() || !lat_2.is_finite() {
@@ -56,7 +60,7 @@ impl Projection for LambertConicConformal {
     /// Function to project geographic coordinates
     /// on WGS84 ellipsoid to cartographic coordinates
     /// with previously specified LCC projection.
-    fn project(&self, lon: f64, lat: f64) -> (f64, f64) {
+    fn project(&self, lon: f64, lat: f64) -> Result<(f64, f64), ProjectionError> {
         let phi = lat.to_radians();
         let lambda = lon.to_radians();
 
@@ -67,13 +71,17 @@ impl Projection for LambertConicConformal {
         let x = rho * theta.sin();
         let y = self.rho_0 - rho * theta.cos();
 
-        (x, y)
+        if !x.is_finite() || !y.is_finite() {
+            Err(ProjectionError::InverseProjectionImpossible(lon, lat))
+        } else {
+            Ok((x, y))
+        }
     }
 
     /// Function to inversly project cartographic coordinates
     /// on specified LCC projection to geographic coordinates
     /// on WGS84 ellipsoid.
-    fn inverse_project(&self, x: f64, y: f64) -> (f64, f64) {
+    fn inverse_project(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let rho = (self.n.signum()) * (x.powi(2) + (self.rho_0 - y).powi(2)).sqrt();
 
         let theta;
@@ -91,7 +99,13 @@ impl Projection for LambertConicConformal {
         let lambda = (theta / self.n) + self.lambda_0;
         let phi = phi_for_inverse(t);
 
-        (lambda.to_degrees(), phi.to_degrees())
+        let (lon, lat) = (lambda.to_degrees(), phi.to_degrees());
+
+        if !lon.is_finite() || !lat.is_finite() {
+            Err(ProjectionError::InverseProjectionImpossible(x, y))
+        } else {
+            Ok((lon, lat))
+        }
     }
 }
 
@@ -150,9 +164,7 @@ fn phi_for_inverse(t: f64) -> f64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::projections::Projection;
-
-    use super::LambertConicConformal;
+    use crate::{LambertConicConformal, Projection};
 
     #[test]
     fn project() {
@@ -160,8 +172,8 @@ mod tests {
 
         let (lon_0, lat_0) = (18.58973722443749, 54.41412855026378);
 
-        let (x, y) = proj.project(lon_0, lat_0);
-        let (lon, lat) = proj.inverse_project(x, y);
+        let (x, y) = proj.project(lon_0, lat_0).unwrap();
+        let (lon, lat) = proj.inverse_project(x, y).unwrap();
 
         assert!(lon - lon_0 < 0.000001);
         assert!(lat - lat_0 < 0.000001);
