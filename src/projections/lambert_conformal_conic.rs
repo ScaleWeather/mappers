@@ -3,7 +3,18 @@ use crate::errors::ProjectionError;
 use float_cmp::approx_eq;
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
 
-use crate::{LambertConicConformal, Projection};
+use crate::{Projection};
+
+/// Front-facing struct of Lambert Conformal Conic projection.
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
+pub struct LambertConicConformal {
+    lambda_0: f64,
+    n: f64,
+    big_f: f64,
+    rho_0: f64,
+    ellps: Ellipsoid,
+}
+
 
 impl LambertConicConformal {
     /// LCC projection constructor from reference longitude, latitude
@@ -181,7 +192,7 @@ fn phi_for_inverse(t: f64, ellps: Ellipsoid) -> f64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::{constants::WGS84, LambertConicConformal, Projection};
+    use crate::{constants::WGS84, Projection, LambertConicConformal};
 
     #[test]
     fn project() {

@@ -1,4 +1,5 @@
-use mappers::{LambertConicConformal, Projection, constants::WGS84};
+use float_cmp::assert_approx_eq;
+use mappers::{constants::WGS84, LambertConicConformal, Projection};
 
 #[test]
 fn test_projection() {
@@ -9,6 +10,7 @@ fn test_projection() {
     let (x, y) = lcc.project(ref_lon, ref_lat).unwrap();
     let (lon, lat) = lcc.inverse_project(x, y).unwrap();
 
-    assert!(lon - ref_lon < 0.000001);
-    assert!(lat - ref_lat < 0.000001);
+    assert_approx_eq!(f64, lon, ref_lon, epsilon = 0.000_000_000_01);
+    assert_approx_eq!(f64, lat, ref_lat, epsilon = 0.000_000_000_01);
 }
+ 
