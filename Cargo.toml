@@ -19,3 +19,4 @@ thiserror = { version = "1.0", default-features = false }
 
 [dev-dependencies]
 float-cmp = { version = "0.9", default-features = false , features = ["std"]}
+proj = {version = "0.27", default-features = false}

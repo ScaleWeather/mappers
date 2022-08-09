@@ -1,4 +1,4 @@
-name: Build on Ubuntu
+name: Run tests
 
 on:
   push:
@@ -7,11 +7,11 @@ on:
     branches: [ main ]
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build cargo
+    - name: Build and test with cargo
       run: |
-        cargo build --release
+        cargo test

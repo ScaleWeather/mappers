@@ -195,21 +195,3 @@ fn phi_for_inverse(t: f64, ellps: Ellipsoid) -> f64 {
     chi + (sin_2chi
         * (a_prime + (cos_2chi * (b_prime + (cos_2chi * (c_prime + (d_prime * cos_2chi)))))))
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::{ellipsoids::WGS84, projections::LambertConformalConic, Projection};
-
-    #[test]
-    fn project() {
-        let proj = LambertConformalConic::new(18.0, 0.0, 30.0, 60.0, WGS84).unwrap();
-
-        let (lon_0, lat_0) = (18.58973722443749, 54.41412855026378);
-
-        let (x, y) = proj.project(lon_0, lat_0).unwrap();
-        let (lon, lat) = proj.inverse_project(x, y).unwrap();
-
-        assert!(lon - lon_0 < 0.000001);
-        assert!(lat - lat_0 < 0.000001);
-    }
-}

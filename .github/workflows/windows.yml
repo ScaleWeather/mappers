@@ -12,7 +12,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build and test with cargo
+    - name: Build with cargo
       run: |
         cargo build --release
-        cargo test
