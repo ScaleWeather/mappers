@@ -31,8 +31,8 @@ jobs:
 
   
   Build-on-Mac:
-  name: Build mappers on Mac
-  runs-on: macos-latest
+    name: Build mappers on Mac
+    runs-on: macos-latest
 
     steps:
     - uses: actions/checkout@v3
@@ -40,4 +40,3 @@ jobs:
       run: |
         cargo build --release
         cargo test
-
