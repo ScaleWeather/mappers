@@ -1,0 +1,41 @@
+name: Build on major architectures
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Build-on-Ubuntu:
+    name: Build mappers on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build with cargo
+      run: |
+        cargo build --release
+        cargo test
+
+  Build-on-Windows:
+    name: Build mappers on Windows
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build with cargo
+      run: |
+        cargo build --release
+        cargo test
+  
+  Build-on-Mac:
+  name: Build mappers on Mac
+  runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build with cargo
+      run: |
+        cargo build --release
+        cargo test
