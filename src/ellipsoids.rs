@@ -1,5 +1,8 @@
 #![allow(non_snake_case)]
 
+//! Reference ellipsoids that can be used with [`projections`](crate::projections).
+
+/// Ellipsoid struct that defines all values contained by reference ellipsoids.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
 pub struct Ellipsoid {
     /// Ellipsoid semi-major axis
@@ -11,11 +14,11 @@ pub struct Ellipsoid {
     /// Ellipsoid eccentricity
     pub E: f64,
 
-    ///WGS84 ellipsoid Ramanujan's `h` parameter
+    /// Ellipsoid Ramanujan's `h` parameter
     pub H: f64,
 }
 
-///WGS84 ellipsoid
+///WGS 84 ellipsoid. Axes lengths sourced from Wikipedia.
 pub const WGS84: Ellipsoid = Ellipsoid {
     A: 6_378_137.0,
 
