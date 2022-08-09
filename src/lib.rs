@@ -1,4 +1,13 @@
-//! ## Example
+//! Pure Rust geographical projections library. Similar to `Proj` in 
+//! basic functionality but allows for a use in concurrent contexts.
+//!
+//! Projections' implementations closely follow algorithms and instructions provided in: 
+//! [Map projections: A working manual (John P. Snyder, 1987)](https://pubs.er.usgs.gov/publication/pp1395)
+//!
+//! **This crate in very early stages of development. If you are interested 
+//! in contributing do not hesitate to contact me on Github.**
+//!
+//! ## Usage example
 //! 
 //! We can project the geographical coordinates to cartographic 
 //! coordinates on a map with sepcified projection as follows:
