@@ -15,7 +15,6 @@ pub struct Ellipsoid {
     pub E: f64,
 }
 
-///WGS 84 ellipsoid. Axes lengths sourced from Proj.
 pub const WGS84: Ellipsoid = Ellipsoid {
     A: 6_378_137.0,
 
@@ -26,7 +25,6 @@ pub const WGS84: Ellipsoid = Ellipsoid {
     E: 0.081_819_190_842_621_569_714_765_428_216_196_596_622_467_041_015_625,
 };
 
-///WGS 72 ellipsoid. Axes lengths sourced from Proj.
 pub const WGS72: Ellipsoid = Ellipsoid {
     A: 6_378_135.0,
 
@@ -37,7 +35,6 @@ pub const WGS72: Ellipsoid = Ellipsoid {
     E: 0.081_818_810_662_748_445_161_618_349_175_114_417_448_639_869_689_941_406_25,
 };
 
-///WGS 66 ellipsoid. Axes lengths sourced from Proj.
 pub const WGS66: Ellipsoid = Ellipsoid {
     A: 6_378_145.0,
 
@@ -48,7 +45,6 @@ pub const WGS66: Ellipsoid = Ellipsoid {
     E: 0.081_820_179_996_059_783_089_634_720_454_341_731_965_541_839_599_609_375,
 };
 
-///WGS 60 ellipsoid. Axes lengths sourced from Proj.
 pub const WGS60: Ellipsoid = Ellipsoid {
     A: 6_378_165.0,
 
@@ -59,7 +55,6 @@ pub const WGS60: Ellipsoid = Ellipsoid {
     E: 0.081_813_334_016_931_082_981_471_945_458_906_702_697_277_069_091_796_875,
 };
 
-///GRS 80 ellipsoid. Axes lengths sourced from Proj.
 pub const GRS80: Ellipsoid = Ellipsoid {
     A: 6_378_137.0,
 
