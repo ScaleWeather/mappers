@@ -58,23 +58,37 @@ pub mod ellipsoids;
 mod errors;
 pub mod projections;
 
+/// An interface for all projections included in the crate.
+/// 
+/// This trait is kept as simple as possible and the most basic version of
+/// projection functions are implemented. Alternative functions for more complex
+/// types should be implemented by the user.
 pub trait Projection {
-    /// Function to project geographic coordinates
-    /// on WGS84 ellipsoid to cartographic coordinates
-    /// with previously specified LCC projection.
+    /// Function to project geographical coordinates (in degrees) to cartographical
+    /// coordinates (in meters) on a map with specified projection.
+    /// 
+    /// # Errors
+    /// 
+    /// Returns [ProjectionError::ProjectionImpossible] when result of 
+    /// projection is not finite.
     fn project(&self, lon: f64, lat: f64) -> Result<(f64, f64), ProjectionError> {
         let (x, y) = self.project_unchecked(lon, lat);
 
         if !x.is_finite() || !y.is_finite() {
-            Err(ProjectionError::InverseProjectionImpossible(lon, lat))
+            Err(ProjectionError::ProjectionImpossible(lon, lat))
         } else {
             Ok((x, y))
         }
     }
 
-    /// Function to inversly project cartographic coordinates
-    /// on specified LCC projection to geographic coordinates
-    /// on WGS84 ellipsoid.
+    /// Function to inversly project cartographical
+    /// coordinates (in meters) to geographical coordinates (in degrees)
+    /// on a map with specified projection.
+    /// 
+    /// # Errors
+    /// 
+    /// Returns [ProjectionError::InverseProjectionImpossible] when result of 
+    /// inverse projection is not finite.
     fn inverse_project(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let (lon, lat) = self.inverse_project_unchecked(x, y);
 
@@ -85,6 +99,9 @@ pub trait Projection {
         }
     }
 
+    /// Same as [`Projection::project()`] but does not check the result.
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64);
+
+    /// Same as [`Projection::inverse_project()`] but does not check the result.
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64);
 }

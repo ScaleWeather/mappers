@@ -65,7 +65,6 @@ pub const GRS80: Ellipsoid = Ellipsoid {
     E: 0.081_819_191_042_815_139_769_395_216_262_637_404_724_955_558_776_855_468_75,
 };
 
-///Normal sphere. Axes lengths sourced from Proj.
 pub const SPHERE: Ellipsoid = Ellipsoid {
     A: 6_370_997.0,
     B: 6_370_997.0,
