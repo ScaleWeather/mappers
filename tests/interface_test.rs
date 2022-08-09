@@ -1,5 +1,5 @@
 use float_cmp::assert_approx_eq;
-use mappers::{constants::WGS84, LambertConicConformal, Projection};
+use mappers::{ellipsoids::WGS84, projections::LambertConicConformal, Projection};
 
 #[test]
 fn test_projection() {

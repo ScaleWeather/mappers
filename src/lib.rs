@@ -3,14 +3,15 @@
 //! Closely follows algorithms and instructions in:
 //! <https://pubs.er.usgs.gov/publication/pp1395>
 
-pub use constants::Ellipsoid;
-pub use projections::Projection;
-pub use projections::lambert_conformal_conic::LambertConicConformal;
 pub use errors::ProjectionError;
 
-pub mod constants;
+pub mod ellipsoids;
 mod errors;
-mod projections;
+pub mod projections;
 
-
-
+pub trait Projection {
+    fn project(&self, lon: f64, lat: f64) -> Result<(f64, f64), ProjectionError>;
+    fn inverse_project(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError>;
+    fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64);
+    fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64);
+}
