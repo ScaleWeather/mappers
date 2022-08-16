@@ -1,27 +1,31 @@
-use internals::TestExtent::Local;
-use mappers::{projections::ModifiedAzimuthalEquidistant, Ellipsoid};
+use float_cmp::assert_approx_eq;
+use mappers::{projections::ModifiedAzimuthalEquidistant, Ellipsoid, Projection};
 mod internals;
 
 #[test]
 fn project() {
-    let ellps_list: [(Ellipsoid, &str); 6] = [
-        (Ellipsoid::wgs84(), "WGS84"),
-        (Ellipsoid::wgs72(), "WGS72"),
-        (Ellipsoid::wgs66(), "WGS66"),
-        (Ellipsoid::wgs60(), "WGS60"),
-        (Ellipsoid::grs80(), "GRS80"),
-        (Ellipsoid::sphere(), "sphere"),
-    ];
+    // This projection has to be tested with numerical example provided in Snyder
+    // as it is not implemented in Proj
+    let proj = ModifiedAzimuthalEquidistant::new(145.741_658_9, 15.184_911_94, Ellipsoid::clarke1866())
+        .unwrap();
 
-    for (ellps, ellps_name) in ellps_list {
-        let proj = ModifiedAzimuthalEquidistant::new(30.0, 30.0, ellps).unwrap();
+    let (x, y) = proj.project(145.793_030_0, 15.246_525_83).unwrap();
 
-        println!("{}", ellps_name);
+    let ref_x = 34_176.20 - 28_657.52;
+    let ref_y = 74_017.88 - 67_199.99;
 
-        internals::test_points_with_proj(
-            &proj,
-            &format!("+proj=aeqd +lon_0=30.0 +lat_0=30.0 +ellps={}", ellps_name),
-            Local,
-        );
-    }
+    // Because the numerical example in Snyder gives
+    // very low precision the epsilon must be big
+    assert_approx_eq!(f64, x, ref_x, epsilon = 0.01);
+    assert_approx_eq!(f64, y, ref_y, epsilon = 0.01);
+
+    let (lon, lat) = proj.inverse_project(ref_x, ref_y).unwrap();
+
+    let ref_lon = 145.793_030_0;
+    let ref_lat = 15.246_525_8;
+
+    // Because the numerical example in Snyder gives
+    // very low precision the epsilon must be big
+    assert_approx_eq!(f64, lon, ref_lon, epsilon = 0.000_000_1);
+    assert_approx_eq!(f64, lat, ref_lat, epsilon = 0.000_000_1);
 }

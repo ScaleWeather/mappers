@@ -1,4 +1,4 @@
-use internals::TestExtent::Global;
+use internals::TestExtent::{Global, Local};
 use mappers::{projections::LambertConformalConic, Ellipsoid};
 mod internals;
 
@@ -25,6 +25,15 @@ fn project() {
                 ellps_name
             ),
             Global,
+        );
+
+        internals::test_points_with_proj(
+            &proj,
+            &format!(
+                "+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=30.0 +lat_0=30.0 +ellps={}",
+                ellps_name
+            ),
+            Local,
         );
     }
 }

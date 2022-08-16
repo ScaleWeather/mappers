@@ -67,4 +67,8 @@ impl Ellipsoid {
     pub fn wgs60() -> Self {
         Ellipsoid::new(6378165.0, 298.3)
     }
+
+    pub fn clarke1866() -> Self {
+        Ellipsoid::new(6378206.4, 294.9786982)
+    }
 }
