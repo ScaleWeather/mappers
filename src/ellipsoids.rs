@@ -3,6 +3,8 @@
 
 //! Reference ellipsoids that can be used with [`projections`](crate::projections).
 
+use geographiclib_rs::Geodesic;
+
 /// Ellipsoid struct that defines all values contained by reference ellipsoids.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
 pub struct Ellipsoid {
@@ -70,5 +72,22 @@ impl Ellipsoid {
 
     pub fn clarke1866() -> Self {
         Ellipsoid::new(6378206.4, 294.9786982)
+    }
+}
+
+impl Into<Geodesic> for Ellipsoid {
+    fn into(self) -> Geodesic {
+        Geodesic::new(self.A, self.F)
+    }
+}
+
+impl From<Geodesic> for Ellipsoid {
+    fn from(geod: Geodesic) -> Self {
+        Ellipsoid {
+            A: geod.a,
+            B: geod._b,
+            E: (1.0 - (geod._b.powi(2) / geod.a.powi(2))).sqrt(),
+            F: geod.f,
+        }
     }
 }
