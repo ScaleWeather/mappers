@@ -59,7 +59,7 @@
 //! geographical coordinates projected and inverse projected should be identical.
 //! However, in practice limitations of floating-point arithmetics will 
 //! introduce some errors along the way, as shown in the example above.
-//! 
+ 
 
 pub use errors::ProjectionError;
 

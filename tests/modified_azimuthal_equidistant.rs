@@ -1,7 +1,7 @@
-use internals::TestExtent::Global;
+use internals::TestExtent::Local;
 use mappers::{
     ellipsoids::{Ellipsoid},
-    projections::LambertConformalConic,
+    projections::ModifiedAzimuthalEquidistant,
 };
 mod internals;
 
@@ -17,14 +17,14 @@ fn project() {
     ];
 
     for (ellps, ellps_name) in ellps_list {
-        let proj = LambertConformalConic::new(30.0, 30.0, 30.0, 60.0, ellps).unwrap();
+        let proj = ModifiedAzimuthalEquidistant::new(30.0, 30.0, ellps).unwrap();
 
         println!("{}", ellps_name);
 
         internals::test_points_with_proj(
             &proj,
-            &format!("+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=30.0 +lat_0=30.0 +ellps={}", ellps_name),
-            Global,
+            &format!("+proj=aeqd +lon_0=30.0 +lat_0=30.0 +ellps={}", ellps_name),
+            Local,
         );
     }
 }

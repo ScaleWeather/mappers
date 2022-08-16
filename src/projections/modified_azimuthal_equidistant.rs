@@ -27,7 +27,7 @@ use crate::{ellipsoids::Ellipsoid, Projection, ProjectionError};
 /// - Used in the oblique aspect for atlas maps of continents and world maps for aviation and radio use.
 /// - Known for many centuries in the polar aspect.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
-pub struct AzimuthalEquidistant {
+pub struct ModifiedAzimuthalEquidistant {
     lon_0: f64,
     lat_0: f64,
     n_1: f64,
@@ -35,7 +35,7 @@ pub struct AzimuthalEquidistant {
     ellps: Ellipsoid,
 }
 
-impl AzimuthalEquidistant {
+impl ModifiedAzimuthalEquidistant {
     /// AEQD projection constructor.
     ///
     /// To reduce computational overhead of projection functions this
@@ -63,7 +63,7 @@ impl AzimuthalEquidistant {
         let n_1 = ellps.A / (1.0 - (ellps.E.powi(2) * (lat_0.sin()).powi(2))).sqrt();
         let g = ellps.E * lat_0.sin() / (1.0 - ellps.E.powi(2)).sqrt();
 
-        Ok(AzimuthalEquidistant {
+        Ok(ModifiedAzimuthalEquidistant {
             lon_0,
             lat_0,
             n_1,
@@ -73,7 +73,7 @@ impl AzimuthalEquidistant {
     }
 }
 
-impl Projection for AzimuthalEquidistant {
+impl Projection for ModifiedAzimuthalEquidistant {
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64) {
         let lon = lon.to_radians();
         let lat = lat.to_radians();

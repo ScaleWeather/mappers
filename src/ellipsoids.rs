@@ -14,50 +14,57 @@ pub struct Ellipsoid {
 
     /// Ellipsoid eccentricity
     pub E: f64,
+
+    /// Ellipsoid flattening
+    pub F: f64,
 }
 
-pub const WGS84: Ellipsoid = Ellipsoid {
-    A: 6_378_137.0,
+impl Ellipsoid {
+    pub fn new(semi_major_axis: f64, inverse_flattening: f64) -> Self {
+        let I = inverse_flattening;
+        let A = semi_major_axis;
 
-    B: 6_356_752.314_245_179_295_539_855_957_031_25,
+        let F = 1.0 / I;
+        let B = A - (A / I);
+        let E = (1.0 - (B.powi(2) / A.powi(2))).sqrt();
 
-    E: 0.081_819_190_842_621_569_714_765_428_216_196_596_622_467_041_015_625,
-};
+        Ellipsoid { A, B, E, F }
+    }
 
-pub const WGS72: Ellipsoid = Ellipsoid {
-    A: 6_378_135.0,
+    pub fn sphere() -> Self {
+        Ellipsoid {
+            A: 6_370_997.0,
+            B: 6_370_997.0,
+            E: 0.0,
+            F: 0.0,
+        }
+    }
 
-    B: 6_356_750.520_016_093_738_377_094_268_798_828_125,
+    pub fn wgs84() -> Self {
+        Ellipsoid::new(6378137.0, 298.257223563)
+    }
 
-    E: 0.081_818_810_662_748_445_161_618_349_175_114_417_448_639_869_689_941_406_25,
-};
+    pub fn grs80() -> Self {
+        Ellipsoid::new(6378137.0, 298.257222101)
+    }
 
-pub const WGS66: Ellipsoid = Ellipsoid {
-    A: 6_378_145.0,
+    pub fn wgs72() -> Self {
+        Ellipsoid::new(6378135.0, 298.26)
+    }
 
-    B: 6_356_759.769_488_683_901_727_199_554_443_359_375,
+    pub fn grs67() -> Self {
+        Ellipsoid::new(6378160.0, 298.247167427)
+    }
 
-    E: 0.081_820_179_996_059_783_089_634_720_454_341_731_965_541_839_599_609_375,
-};
+    pub fn airy1830() -> Self {
+        Ellipsoid::new(6377563.396, 299.3249646)
+    }
 
-pub const WGS60: Ellipsoid = Ellipsoid {
-    A: 6_378_165.0,
+    pub fn wgs66() -> Self {
+        Ellipsoid::new(6378145.0, 298.25)
+    }
 
-    B: 6_356_783.286_959_436_722_099_781_036_376_953_125,
-
-    E: 0.081_813_334_016_931_082_981_471_945_458_906_702_697_277_069_091_796_875,
-};
-
-pub const GRS80: Ellipsoid = Ellipsoid {
-    A: 6_378_137.0,
-
-    B: 6_356_752.314_140_356_145_799_160_003_662_109_375,
-
-    E: 0.081_819_191_042_815_139_769_395_216_262_637_404_724_955_558_776_855_468_75,
-};
-
-pub const SPHERE: Ellipsoid = Ellipsoid {
-    A: 6_370_997.0,
-    B: 6_370_997.0,
-    E: 0.0,
-};
+    pub fn wgs60() -> Self {
+        Ellipsoid::new(6378165.0, 298.3)
+    }
+}
