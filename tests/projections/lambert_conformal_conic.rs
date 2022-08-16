@@ -1,9 +1,10 @@
-use internals::TestExtent::{Global, Local};
-use mappers::{projections::AzimuthalEquidistant, Ellipsoid};
-mod internals;
+use crate::internals::{
+    self,
+    TestExtent::{Global, Local},
+};
+use mappers::{projections::LambertConformalConic, Ellipsoid};
 
-#[test]
-fn project() {
+pub(crate) fn test_points_with_proj() {
     let ellps_list: [(Ellipsoid, &str); 6] = [
         (Ellipsoid::wgs84(), "WGS84"),
         (Ellipsoid::wgs72(), "WGS72"),
@@ -14,14 +15,14 @@ fn project() {
     ];
 
     for (ellps, ellps_name) in ellps_list {
-        let proj = AzimuthalEquidistant::new(30.0, 30.0, ellps).unwrap();
+        let proj = LambertConformalConic::new(30.0, 30.0, 30.0, 60.0, ellps).unwrap();
 
         println!("{}", ellps_name);
 
         internals::test_points_with_proj(
             &proj,
             &format!(
-                "+proj=aeqd +lon_0=30.0 +lat_0=30.0 +ellps={}",
+                "+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=30.0 +lat_0=30.0 +ellps={}",
                 ellps_name
             ),
             Global,
@@ -30,7 +31,7 @@ fn project() {
         internals::test_points_with_proj(
             &proj,
             &format!(
-                "+proj=aeqd +lon_0=30.0 +lat_0=30.0 +ellps={}",
+                "+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=30.0 +lat_0=30.0 +ellps={}",
                 ellps_name
             ),
             Local,
