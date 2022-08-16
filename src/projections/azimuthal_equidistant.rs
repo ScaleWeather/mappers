@@ -81,15 +81,14 @@ impl Projection for AzimuthalEquidistant {
         let az = ((lon - self.lon_0).sin())
             .atan2((self.lat_0.cos() * psi.tan()) - (self.lat_0.sin() * (lon - self.lon_0).cos()));
 
-        let s;
-        if !approx_eq!(f64, az.sin(), 0.0) {
-            s = (((lon - self.lon_0).sin() * psi.cos()) / (az.sin())).asin();
+        let s = if !approx_eq!(f64, az.sin(), 0.0) {
+            (((lon - self.lon_0).sin() * psi.cos()) / (az.sin())).asin()
         } else {
-            s = ((self.lat_0.cos() * psi.sin()) - (self.lat_0.sin() * psi.cos()))
+            ((self.lat_0.cos() * psi.sin()) - (self.lat_0.sin() * psi.cos()))
                 .asin()
                 .abs()
-                * az.cos().signum();
-        }
+                * az.cos().signum()
+        };
 
         let g = self.ellps.E * self.lat_0.sin() / (1.0 - self.ellps.E.powi(2)).sqrt();
         let h = self.ellps.E * self.lat_0.cos() * az.cos() / (1.0 - self.ellps.E.powi(2)).sqrt();

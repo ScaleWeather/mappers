@@ -1,8 +1,8 @@
+use internals::TestExtent::Local;
 use mappers::{
     ellipsoids::{GRS80, SPHERE, WGS60, WGS66, WGS72, WGS84},
     projections::AzimuthalEquidistant,
 };
-
 mod internals;
 
 #[test]
@@ -16,14 +16,15 @@ fn project() {
         (SPHERE, "sphere"),
     ];
 
-    for (ellps, ellps_str) in ellps_list {
-        let proj = AzimuthalEquidistant::new(18.0, 0.0, ellps).unwrap();
+    for (ellps, ellps_name) in ellps_list {
+        let proj = AzimuthalEquidistant::new(30.0, 30.0, ellps).unwrap();
 
-        println!("{}", ellps_str);
+        println!("{}", ellps_name);
 
         internals::test_points_with_proj(
             &proj,
-            &format!("+proj=aeqd +lat_0=0.0 +lon_0=18.0 +ellps={}", ellps_str),
+            &format!("+proj=aeqd +lon_0=30.0 +lat_0=30.0 +ellps={}", ellps_name),
+            Local,
         );
     }
 }
