@@ -13,14 +13,14 @@
 //! coordinates on a map with sepcified projection as follows:
 //! 
 //!```
-//!# use mappers::{ellipsoids::WGS84, projections::LambertConformalConic, Projection, ProjectionError};
+//!# use mappers::{Ellipsoid, projections::LambertConformalConic, Projection, ProjectionError};
 //!#
 //!# fn main() -> Result<(), ProjectionError> {
 //! // First, we define the projection
 //! 
 //! // We use LCC with reference longitude centered on France
 //! // parallels set for Europe and WGS84 ellipsoid
-//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, WGS84)?;
+//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::wgs84())?;
 //! 
 //! // Second, we define the coordinates of Mount Blanc
 //! let (lon, lat) = (6.8651, 45.8326);
@@ -38,11 +38,11 @@
 //! to geographical coordinates:
 //! 
 //!```
-//!# use mappers::{ellipsoids::WGS84, projections::LambertConformalConic, Projection, ProjectionError};
+//!# use mappers::{Ellipsoid, projections::LambertConformalConic, Projection, ProjectionError};
 //!#
 //!# fn main() -> Result<(), ProjectionError> {
 //! // We again start with defining the projection
-//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, WGS84)?;
+//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::wgs84())?;
 //! 
 //! // We take the previously projected coordinates
 //! let (x, y) = (364836.4407792019, 5421073.726335758);
@@ -61,9 +61,10 @@
 //! introduce some errors along the way, as shown in the example above.
  
 
+pub use ellipsoids::Ellipsoid;
 pub use errors::ProjectionError;
 
-pub mod ellipsoids;
+mod ellipsoids;
 mod errors;
 pub mod projections;
 

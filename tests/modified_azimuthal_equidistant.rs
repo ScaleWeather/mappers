@@ -1,13 +1,10 @@
 use internals::TestExtent::Local;
-use mappers::{
-    ellipsoids::{Ellipsoid},
-    projections::ModifiedAzimuthalEquidistant,
-};
+use mappers::{projections::ModifiedAzimuthalEquidistant, Ellipsoid};
 mod internals;
 
 #[test]
 fn project() {
-    let ellps_list:[(Ellipsoid, &str); 6] = [
+    let ellps_list: [(Ellipsoid, &str); 6] = [
         (Ellipsoid::wgs84(), "WGS84"),
         (Ellipsoid::wgs72(), "WGS72"),
         (Ellipsoid::wgs66(), "WGS66"),

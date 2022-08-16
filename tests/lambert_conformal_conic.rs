@@ -1,13 +1,10 @@
 use internals::TestExtent::Global;
-use mappers::{
-    ellipsoids::{Ellipsoid},
-    projections::LambertConformalConic,
-};
+use mappers::{projections::LambertConformalConic, Ellipsoid};
 mod internals;
 
 #[test]
 fn project() {
-    let ellps_list:[(Ellipsoid, &str); 6] = [
+    let ellps_list: [(Ellipsoid, &str); 6] = [
         (Ellipsoid::wgs84(), "WGS84"),
         (Ellipsoid::wgs72(), "WGS72"),
         (Ellipsoid::wgs66(), "WGS66"),
@@ -23,7 +20,10 @@ fn project() {
 
         internals::test_points_with_proj(
             &proj,
-            &format!("+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=30.0 +lat_0=30.0 +ellps={}", ellps_name),
+            &format!(
+                "+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=30.0 +lat_0=30.0 +ellps={}",
+                ellps_name
+            ),
             Global,
         );
     }
