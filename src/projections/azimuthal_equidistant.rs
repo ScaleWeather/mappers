@@ -30,6 +30,8 @@ use crate::{ellipsoids::Ellipsoid, Projection, ProjectionError};
 pub struct AzimuthalEquidistant {
     lon_0: f64,
     lat_0: f64,
+    n_1: f64,
+    g: f64,
     ellps: Ellipsoid,
 }
 
@@ -58,9 +60,14 @@ impl AzimuthalEquidistant {
         let lon_0 = ref_lon.to_radians();
         let lat_0 = ref_lat.to_radians();
 
+        let n_1 = ellps.A / (1.0 - (ellps.E.powi(2) * (lat_0.sin()).powi(2))).sqrt();
+        let g = ellps.E * lat_0.sin() / (1.0 - ellps.E.powi(2)).sqrt();
+
         Ok(AzimuthalEquidistant {
             lon_0,
             lat_0,
+            n_1,
+            g,
             ellps,
         })
     }
@@ -71,11 +78,10 @@ impl Projection for AzimuthalEquidistant {
         let lon = lon.to_radians();
         let lat = lat.to_radians();
 
-        let n_1 = self.ellps.A / (1.0 - (self.ellps.E.powi(2) * (self.lat_0.sin()).powi(2))).sqrt();
         let n = self.ellps.A / (1.0 - (self.ellps.E.powi(2) * (lat.sin()).powi(2))).sqrt();
 
         let psi = (((1.0 - self.ellps.E.powi(2)) * lat.tan())
-            + ((self.ellps.E.powi(2) * n_1 * self.lat_0.sin()) / (n * lat.cos())))
+            + ((self.ellps.E.powi(2) * self.n_1 * self.lat_0.sin()) / (n * lat.cos())))
         .atan();
 
         let az = ((lon - self.lon_0).sin())
@@ -90,16 +96,15 @@ impl Projection for AzimuthalEquidistant {
                 * az.cos().signum()
         };
 
-        let g = self.ellps.E * self.lat_0.sin() / (1.0 - self.ellps.E.powi(2)).sqrt();
         let h = self.ellps.E * self.lat_0.cos() * az.cos() / (1.0 - self.ellps.E.powi(2)).sqrt();
 
-        let c = (n_1 * s)
+        let c = (self.n_1 * s)
             * (1.0 - (s.powi(2) * h.powi(2) * (1.0 - h.powi(2)) / 6.0)
-                + ((s.powi(3) / 8.0) * g * h * (1.0 - 2.0 * h.powi(2)))
+                + ((s.powi(3) / 8.0) * self.g * h * (1.0 - 2.0 * h.powi(2)))
                 + ((s.powi(4) / 120.0)
                     * ((h.powi(2) * (4.0 - 7.0 * h.powi(2)))
-                        - (3.0 * g.powi(2) * (1.0 - 7.0 * h.powi(2)))))
-                - ((s.powi(5) / 48.0) * g * h));
+                        - (3.0 * self.g.powi(2) * (1.0 - 7.0 * h.powi(2)))))
+                - ((s.powi(5) / 48.0) * self.g * h));
 
         let x = c * az.sin();
         let y = c * az.cos();
@@ -110,9 +115,6 @@ impl Projection for AzimuthalEquidistant {
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let c = (x * x + y * y).sqrt();
         let az = x.atan2(y);
-
-        let n_1 = self.ellps.A
-            / (1.0 - self.ellps.E * self.ellps.E * ((self.lat_0.sin()).powi(2))).sqrt();
 
         let big_a =
             -self.ellps.E * self.ellps.E * ((self.lat_0.cos()).powi(2)) * ((az.cos()).powi(2))
@@ -125,7 +127,7 @@ impl Projection for AzimuthalEquidistant {
             * self.lat_0.cos()
             * az.cos()
             / (1.0 - self.ellps.E * self.ellps.E);
-        let big_d = c / n_1;
+        let big_d = c / self.n_1;
         let big_e = big_d
             - (big_a * (1.0 + big_a) * big_d.powi(3) / 6.0)
             - (big_b * (1.0 + 3.0 * big_a) * big_d.powi(4) / 24.0);
