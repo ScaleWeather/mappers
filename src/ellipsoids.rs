@@ -75,12 +75,6 @@ impl Ellipsoid {
     }
 }
 
-impl Into<Geodesic> for Ellipsoid {
-    fn into(self) -> Geodesic {
-        Geodesic::new(self.A, self.F)
-    }
-}
-
 impl From<Geodesic> for Ellipsoid {
     fn from(geod: Geodesic) -> Self {
         Ellipsoid {
@@ -89,5 +83,53 @@ impl From<Geodesic> for Ellipsoid {
             E: (1.0 - (geod._b.powi(2) / geod.a.powi(2))).sqrt(),
             F: geod.f,
         }
+    }
+}
+
+impl Into<Geodesic> for Ellipsoid {
+    fn into(self) -> Geodesic {
+        Geodesic::new(self.A, self.F)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use float_cmp::assert_approx_eq;
+    use geographiclib_rs::Geodesic;
+
+    use crate::Ellipsoid;
+
+    #[test]
+    fn into_geod() {
+        let ref_elps = Ellipsoid::wgs84();
+        let ref_geod = Geodesic::wgs84();
+
+        let con_geod: Geodesic = ref_elps.into();
+
+        assert_approx_eq!(f64, ref_elps.A, con_geod.a);
+        assert_approx_eq!(f64, ref_geod.a, con_geod.a);
+
+        assert_approx_eq!(f64, ref_elps.B, con_geod._b);
+        assert_approx_eq!(f64, ref_geod._b, con_geod._b);
+
+        assert_approx_eq!(f64, ref_elps.F, con_geod.f);
+        assert_approx_eq!(f64, ref_geod.f, con_geod.f);
+    }
+
+    #[test]
+    fn from_geod() {
+        let ref_elps = Ellipsoid::wgs84();
+        let ref_geod = Geodesic::wgs84();
+
+        let con_elps: Ellipsoid = ref_geod.into();
+
+        assert_approx_eq!(f64, ref_elps.A, con_elps.A);
+        assert_approx_eq!(f64, ref_geod.a, con_elps.A);
+
+        assert_approx_eq!(f64, ref_elps.B, con_elps.B);
+        assert_approx_eq!(f64, ref_geod._b, con_elps.B);
+
+        assert_approx_eq!(f64, ref_elps.F, con_elps.F);
+        assert_approx_eq!(f64, ref_geod.f, con_elps.F);
     }
 }
