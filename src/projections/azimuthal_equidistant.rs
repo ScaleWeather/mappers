@@ -55,22 +55,3 @@ impl Projection for AzimuthalEquidistant {
         (lon, lat)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use crate::{Ellipsoid, Projection};
-
-    use super::AzimuthalEquidistant;
-
-    #[test]
-    fn check() {
-        let proj = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::wgs84()).unwrap();
-
-        let (x, y) = proj.project_unchecked(32.85, 27.42);
-
-        println!("{} {}", x, y);
-
-        let (lon, lat) = proj.inverse_project_unchecked(x, y);
-        println!("{} {}", lon, lat);
-    }
-}
