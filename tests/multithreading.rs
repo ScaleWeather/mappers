@@ -23,10 +23,10 @@ fn arc_interop() {
     for handle in handles {
         let (map_coords, geo_coords) = handle.join().unwrap();
 
-        assert_approx_eq!(f64, map_coords.0, -398563.2994422894);
-        assert_approx_eq!(f64, map_coords.1, 1674853.7525355904);
+        assert_approx_eq!(f64, map_coords.0, -398563.2994422894, epsilon = 0.000_000_1);
+        assert_approx_eq!(f64, map_coords.1, 1674853.7525355904, epsilon = 0.000_000_1);
 
-        assert_approx_eq!(f64, geo_coords.0, 32.132000374279365);
-        assert_approx_eq!(f64, geo_coords.1, 32.68850065409422);
+        assert_approx_eq!(f64, geo_coords.0, 32.132000374279365, epsilon = 0.000_000_1);
+        assert_approx_eq!(f64, geo_coords.1, 32.68850065409422, epsilon = 0.000_000_1);
     }
 }
