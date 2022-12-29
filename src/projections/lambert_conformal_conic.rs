@@ -18,7 +18,7 @@ use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
 /// - Pole in same hemisphere as standard parallels is a point; other pole is at infinity.
 /// - Used for maps of countries and regions with predominant east-west expanse.
 /// - Presented by Lambert in 1772.
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct LambertConformalConic {
     lambda_0: f64,
     n: f64,

@@ -2,6 +2,11 @@ use float_cmp::approx_eq;
 
 use crate::{ellipsoids::Ellipsoid, Projection, ProjectionError};
 
+/// This is a modified version of the [`Azimuthal Equidistant`](crate::projections::AzimuthalEquidistant) projection,
+/// defined for islands of Micronesia and described by [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395).
+/// It does not use Geodesic calculations so it is faster than the original projection, but significantly
+/// diverges from the AEQD projection at bigger scales.
+/// 
 /// The azimuthal equidistant projection is an azimuthal map projection.
 /// It has the useful properties that all points on the map are at proportionally
 /// correct distances from the center point, and that all points on the map are at the
@@ -26,7 +31,7 @@ use crate::{ellipsoids::Ellipsoid, Projection, ProjectionError};
 /// - Used in the polar aspect for world maps and maps of polar hemispheres.
 /// - Used in the oblique aspect for atlas maps of continents and world maps for aviation and radio use.
 /// - Known for many centuries in the polar aspect.
-#[derive(Copy, Clone, PartialEq, PartialOrd, Debug, Default)]
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct ModifiedAzimuthalEquidistant {
     lon_0: f64,
     lat_0: f64,
@@ -36,7 +41,7 @@ pub struct ModifiedAzimuthalEquidistant {
 }
 
 impl ModifiedAzimuthalEquidistant {
-    /// AEQD projection constructor.
+    /// ModifiedAzimuthalEquidistant projection constructor.
     ///
     /// To reduce computational overhead of projection functions this
     /// constructor is non-trivial and tries to do as much projection computations as possible.

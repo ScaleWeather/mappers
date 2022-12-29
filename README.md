@@ -27,14 +27,14 @@ So `mappers` should be used only when comprehensiveness (and probably correctnes
 
 ## Usage example
 
-We can project the geographical coordinates to cartographic coordinates on a map with sepcified projection as follows:
+We can project the geographical coordinates to cartographic coordinates on a map with specified projection as follows:
 
 ```rust
 // First, we define the projection
 
 // We use LCC with reference longitude centered on France
 // parallels set for Europe and WGS84 ellipsoid
-let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, WGS84)?;
+let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::wgs84())?;
 
 // Second, we define the coordinates of Mount Blanc
 let (lon, lat) = (6.8651, 45.8326);
@@ -46,20 +46,20 @@ let (x, y) = lcc.project(lon, lat)?;
 println!("x: {}, y: {}", x, y); // x: 364836.4407792019, y: 5421073.726335758
 ```
 
-We can also inversly project the cartographic coordinates to geographical coordinates:
+We can also inversely project the cartographic coordinates to geographical coordinates:
 
 ```rust
 // We again start with defining the projection
-let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, WGS84)?;
+let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::wgs84())?;
 
 // We take the previously projected coordinates
 let (x, y) = (364836.4407792019, 5421073.726335758);
 
-// Inversly project the coordinates
+// Inversely project the coordinates
 let (lon, lat) = lcc.inverse_project(x, y)?;
 
 // And print the result
 println!("lon: {}, lat: {}", lon, lat); // lon: 6.8651, lat: 45.83260000001716
 ```
 
-Some projections are mathematically exactly inversible, and technically geographical coordinates projected and inverse projected should be identical. However, in practice limitations of floating-point arithmetics will introduce some errors along the way, as shown in the example above.
+Some projections are mathematically exactly invertible, and technically geographical coordinates projected and inverse projected should be identical. However, in practice limitations of floating-point arithmetics will introduce some errors along the way, as shown in the example above.
