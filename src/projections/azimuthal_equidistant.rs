@@ -7,7 +7,7 @@ use geographiclib_rs::{DirectGeodesic, Geodesic, InverseGeodesic};
 /// correct azimuth (direction) from the center point. A useful application for this
 /// type of projection is a polar projection which shows all meridians (lines of longitude) as straight,
 /// with distances from the pole represented correctly [(Wikipedia, 2022)](https://en.wikipedia.org/wiki/Azimuthal_equidistant_projection).
-/// 
+///
 /// This projection uses Geodesic computation (defined by [C. F. F. Karney (2013)](https://doi.org/10.1007/s00190-012-0578-z))
 /// to compute distances and azimuths between projected point and origin. So it might be slower than some other projections.
 ///
@@ -28,7 +28,7 @@ use geographiclib_rs::{DirectGeodesic, Geodesic, InverseGeodesic};
 /// - Used in the polar aspect for world maps and maps of polar hemispheres.
 /// - Used in the oblique aspect for atlas maps of continents and world maps for aviation and radio use.
 /// - Known for many centuries in the polar aspect.
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct AzimuthalEquidistant {
     lon_0: f64,
     lat_0: f64,
