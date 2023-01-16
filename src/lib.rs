@@ -81,7 +81,7 @@ pub trait Projection: Debug + DynClone + Send + Sync {
     ///
     /// # Errors
     ///
-    /// Returns [ProjectionError::ProjectionImpossible] when result of
+    /// Returns [`ProjectionError::ProjectionImpossible`] when result of
     /// projection is not finite.
     fn project(&self, lon: f64, lat: f64) -> Result<(f64, f64), ProjectionError> {
         let (x, y) = self.project_unchecked(lon, lat);
@@ -99,7 +99,7 @@ pub trait Projection: Debug + DynClone + Send + Sync {
     ///
     /// # Errors
     ///
-    /// Returns [ProjectionError::InverseProjectionImpossible] when result of
+    /// Returns [`ProjectionError::InverseProjectionImpossible`] when result of
     /// inverse projection is not finite.
     fn inverse_project(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let (lon, lat) = self.inverse_project_unchecked(x, y);

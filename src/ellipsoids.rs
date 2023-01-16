@@ -55,42 +55,42 @@ impl Ellipsoid {
 
     /// World Geodetic System 1984 (WGS84) ellipsoid (EPSG:7030).
     pub fn wgs84() -> Self {
-        Ellipsoid::new(6378137.0, 298.257223563)
+        Ellipsoid::new(6_378_137.0, 298.257_223_563)
     }
 
     /// Geodetic Reference System 1980 (GRS 1980) ellipsoid (EPSG:7019).
     pub fn grs80() -> Self {
-        Ellipsoid::new(6378137.0, 298.257222101)
+        Ellipsoid::new(6_378_137.0, 298.257_222_101)
     }
 
     /// World Geodetic System 1972 (WGS72) ellipsoid (EPSG:7043).
     pub fn wgs72() -> Self {
-        Ellipsoid::new(6378135.0, 298.26)
+        Ellipsoid::new(6_378_135.0, 298.26)
     }
 
     /// Geodetic Reference System 1967 (GRS 1967) ellipsoid (EPSG:7036).
     pub fn grs67() -> Self {
-        Ellipsoid::new(6378160.0, 298.247167427)
+        Ellipsoid::new(6_378_160.0, 298.247_167_427)
     }
 
     /// Airy 1830 ellipsoid (EPSG:7001).
     pub fn airy1830() -> Self {
-        Ellipsoid::new(6377563.396, 299.3249646)
+        Ellipsoid::new(6_377_563.396, 299.324_964_6)
     }
 
     /// World Geodetic System 1966 (WGS66) ellipsoid.
     pub fn wgs66() -> Self {
-        Ellipsoid::new(6378145.0, 298.25)
+        Ellipsoid::new(6_378_145.0, 298.25)
     }
 
     /// World Geodetic System 1960 (WGS60) ellipsoid.
     pub fn wgs60() -> Self {
-        Ellipsoid::new(6378165.0, 298.3)
+        Ellipsoid::new(6_378_165.0, 298.3)
     }
 
     /// Clarke 1866 ellipsoid (EPSG:7008).
     pub fn clarke1866() -> Self {
-        Ellipsoid::new(6378206.4, 294.9786982)
+        Ellipsoid::new(6_378_206.4, 294.978_698_2)
     }
 }
 
@@ -105,9 +105,9 @@ impl From<Geodesic> for Ellipsoid {
     }
 }
 
-impl Into<Geodesic> for Ellipsoid {
-    fn into(self) -> Geodesic {
-        Geodesic::new(self.A, self.F)
+impl From<Ellipsoid> for Geodesic {
+    fn from(ellps: Ellipsoid) -> Geodesic {
+        Geodesic::new(ellps.A, ellps.F)
     }
 }
 

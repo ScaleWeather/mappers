@@ -41,7 +41,7 @@ pub struct ModifiedAzimuthalEquidistant {
 }
 
 impl ModifiedAzimuthalEquidistant {
-    /// ModifiedAzimuthalEquidistant projection constructor.
+    /// `ModifiedAzimuthalEquidistant` projection constructor.
     ///
     /// To reduce computational overhead of projection functions this
     /// constructor is non-trivial and tries to do as much projection computations as possible.
@@ -110,13 +110,13 @@ impl Projection for ModifiedAzimuthalEquidistant {
         let az = ((lon - self.lon_0).sin())
             .atan2((self.lat_0.cos() * psi.tan()) - (self.lat_0.sin() * (lon - self.lon_0).cos()));
 
-        let s = if !approx_eq!(f64, az.sin(), 0.0) {
-            (((lon - self.lon_0).sin() * psi.cos()) / (az.sin())).asin()
-        } else {
+        let s = if approx_eq!(f64, az.sin(), 0.0) {
             ((self.lat_0.cos() * psi.sin()) - (self.lat_0.sin() * psi.cos()))
                 .asin()
                 .abs()
                 * az.cos().signum()
+        } else {
+            (((lon - self.lon_0).sin() * psi.cos()) / (az.sin())).asin()
         };
 
         let h = self.ellps.E * self.lat_0.cos() * az.cos() / (1.0 - self.ellps.E.powi(2)).sqrt();
