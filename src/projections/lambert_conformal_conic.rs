@@ -57,12 +57,6 @@ impl LambertConformalConic {
         std_par_2: f64,
         ellps: Ellipsoid,
     ) -> Result<Self, ProjectionError> {
-        if approx_eq!(f64, std_par_1, std_par_2) {
-            return Err(ProjectionError::IncorrectParams(
-                "standard parallels cannot be equal",
-            ));
-        }
-
         if !(-180.0..180.0).contains(&ref_lon) {
             return Err(ProjectionError::IncorrectParams(
                 "longitude must be between -180..180",
@@ -98,7 +92,11 @@ impl LambertConformalConic {
         let m_1 = m(phi_1, ellps);
         let m_2 = m(phi_2, ellps);
 
-        let n = n(m_1, m_2, t_1, t_2);
+        let n = if approx_eq!(f64, std_par_1, std_par_2) {
+            phi_1.sin()
+        } else {
+            n(m_1, m_2, t_1, t_2)
+        };
         let big_f = big_f(m_1, n, t_1);
         let rho_0 = rho(big_f, t_0, n, ellps);
 
