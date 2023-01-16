@@ -12,6 +12,11 @@ fn lambert_conformal_conic() {
 }
 
 #[test]
+fn lcc_single_par() {
+    projections::lcc_single_par::test_points_with_proj();
+}
+
+#[test]
 fn modified_azimuthal_equidistant() {
     projections::modified_azimuthal_equidistant::test_points_with_proj();
 }
