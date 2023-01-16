@@ -46,7 +46,6 @@ impl LambertConformalConic {
     ///
     /// Returns [`ProjectionError::IncorrectParams`] with additional information when:
     ///
-    /// - standard parallels are equal.
     /// - one or more longitudes are not within -180..180 range.
     /// - one or more latitudes are not within -90..90 range.
     /// - one or more arguments are not finite.
