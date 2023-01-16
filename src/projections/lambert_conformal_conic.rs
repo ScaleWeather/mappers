@@ -28,9 +28,9 @@ pub struct LambertConformalConic {
 }
 
 impl LambertConformalConic {
-    /// LCC projection constructor. 
-    /// 
-    /// To reduce computational overhead of projection functions this 
+    /// LCC projection constructor.
+    ///
+    /// To reduce computational overhead of projection functions this
     /// constructor is non-trivial and tries to do as much projection computations as possible.
     /// Thus creating a new structure can involve a significant computational overhead.
     /// When projecting multiple coordinates only one instance of the structure should be created

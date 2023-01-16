@@ -6,14 +6,14 @@
 use geographiclib_rs::Geodesic;
 
 /// Ellipsoid struct that defines all values contained by reference ellipsoids.
-/// 
+///
 /// Values for pre-defined ellipsoids are taken from the [EPSG Geodetic Parameter Dataset](https://epsg.org/),
 /// [Map projections: A working manual (John P. Snyder, 1987)](https://pubs.er.usgs.gov/publication/pp1395) or
 /// [Proj documentation](https://proj.org/usage/ellipsoids.html).
-/// 
+///
 /// Because Rust consts currently do not support floating-point operations,
 /// to maintain consistent precision across all targets pre-defined ellipsoids
-/// are defined as functions. The overhead of calling these functions should be 
+/// are defined as functions. The overhead of calling these functions should be
 /// negligible in most cases.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct Ellipsoid {
@@ -58,12 +58,11 @@ impl Ellipsoid {
         Ellipsoid::new(6378137.0, 298.257223563)
     }
 
-
     /// Geodetic Reference System 1980 (GRS 1980) ellipsoid (EPSG:7019).
     pub fn grs80() -> Self {
         Ellipsoid::new(6378137.0, 298.257222101)
     }
-    
+
     /// World Geodetic System 1972 (WGS72) ellipsoid (EPSG:7043).
     pub fn wgs72() -> Self {
         Ellipsoid::new(6378135.0, 298.26)

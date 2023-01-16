@@ -6,7 +6,7 @@ use crate::{ellipsoids::Ellipsoid, Projection, ProjectionError};
 /// defined for islands of Micronesia and described by [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395).
 /// It does not use Geodesic calculations so it is faster than the original projection, but significantly
 /// diverges from the AEQD projection at bigger scales.
-/// 
+///
 /// The azimuthal equidistant projection is an azimuthal map projection.
 /// It has the useful properties that all points on the map are at proportionally
 /// correct distances from the center point, and that all points on the map are at the
