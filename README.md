@@ -34,7 +34,7 @@ We can project the geographical coordinates to cartographic coordinates on a map
 
 // We use LCC with reference longitude centered on France
 // parallels set for Europe and WGS84 ellipsoid
-let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::wgs84())?;
+let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
 
 // Second, we define the coordinates of Mount Blanc
 let (lon, lat) = (6.8651, 45.8326);
@@ -50,7 +50,7 @@ We can also inversely project the cartographic coordinates to geographical coord
 
 ```rust
 // We again start with defining the projection
-let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::wgs84())?;
+let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
 
 // We take the previously projected coordinates
 let (x, y) = (364836.4407792019, 5421073.726335758);
