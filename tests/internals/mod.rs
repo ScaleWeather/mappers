@@ -1,5 +1,5 @@
 use float_cmp::assert_approx_eq;
-use mappers::Projection;
+use mappers::{Ellipsoid, Projection};
 use proj::Proj;
 
 #[allow(unused)]
@@ -7,6 +7,15 @@ pub enum TestExtent {
     Global,
     Local,
 }
+
+pub static ELLIPSOIDS_TEST_SET: [(Ellipsoid, &str); 6] = [
+    (Ellipsoid::WGS84, "WGS84"),
+    (Ellipsoid::WGS72, "WGS72"),
+    (Ellipsoid::WGS66, "WGS66"),
+    (Ellipsoid::WGS60, "WGS60"),
+    (Ellipsoid::GRS80, "GRS80"),
+    (Ellipsoid::SPHERE, "sphere"),
+];
 
 static GLOBAL_GEO_POINTS: [(f64, f64); 8] = [
     (45.0, 45.0),

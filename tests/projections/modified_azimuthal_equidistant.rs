@@ -5,7 +5,7 @@ pub(crate) fn test_points_with_proj() {
     // This projection has to be tested with numerical example provided in Snyder
     // as it is not implemented in Proj
     let proj =
-        ModifiedAzimuthalEquidistant::new(145.741_658_9, 15.184_911_94, Ellipsoid::clarke1866())
+        ModifiedAzimuthalEquidistant::new(145.741_658_9, 15.184_911_94, Ellipsoid::CLARKE1866)
             .unwrap();
 
     let (x, y) = proj.project(145.793_030_0, 15.246_525_83).unwrap();

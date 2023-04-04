@@ -5,7 +5,7 @@ use mappers::{projections::AzimuthalEquidistant, Ellipsoid, Projection};
 
 #[test]
 fn arc_interop() {
-    let proj = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::wgs84()).unwrap();
+    let proj = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::WGS84).unwrap();
     let proj = Arc::new(proj);
     let mut handles = vec![];
 
