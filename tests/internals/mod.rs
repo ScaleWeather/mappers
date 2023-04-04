@@ -50,6 +50,27 @@ static MAP_POINTS: [(f64, f64); 8] = [
     (-200_000.0, -200_000.0),
 ];
 
+pub fn basic_correctness<F>(proj_constr: F, partial_proj_str: &str)
+where
+    F: Fn(Ellipsoid) -> Box<dyn Projection>,
+{
+    for (ellps, ellps_name) in ELLIPSOIDS_TEST_SET {
+        let int_proj = proj_constr(ellps);
+
+        test_points_with_proj(
+            int_proj.as_ref(),
+            &format!("{} +ellps={}", partial_proj_str, ellps_name),
+            TestExtent::Global,
+        );
+
+        test_points_with_proj(
+            int_proj.as_ref(),
+            &format!("{} +ellps={}", partial_proj_str, ellps_name),
+            TestExtent::Local,
+        );
+    }
+}
+
 pub fn test_points_with_proj(int_proj: &dyn Projection, proj_str: &str, extent: TestExtent) {
     let ref_proj = Proj::new(proj_str).unwrap();
 

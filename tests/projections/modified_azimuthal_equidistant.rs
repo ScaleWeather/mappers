@@ -1,7 +1,7 @@
 use float_cmp::assert_approx_eq;
 use mappers::{projections::ModifiedAzimuthalEquidistant, Ellipsoid, Projection};
 
-pub(crate) fn test_points_with_proj() {
+pub(crate) fn basic_correctness() {
     // This projection has to be tested with numerical example provided in Snyder
     // as it is not implemented in Proj
     let proj =
@@ -23,8 +23,6 @@ pub(crate) fn test_points_with_proj() {
     let ref_lon = 145.793_030_0;
     let ref_lat = 15.246_525_8;
 
-    // Because the numerical example in Snyder gives
-    // very low precision the epsilon must be big
     assert_approx_eq!(f64, lon, ref_lon, epsilon = 0.000_000_1);
     assert_approx_eq!(f64, lat, ref_lat, epsilon = 0.000_000_1);
 }
