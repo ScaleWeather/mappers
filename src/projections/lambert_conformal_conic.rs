@@ -39,7 +39,7 @@ impl LambertConformalConic {
     /// # Arguments
     ///
     /// - `ref_lon`, `ref_lat` - Reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
-    /// - `std_par_1`, `std_par_1` - First and second standard parallel (latitude). Scale is true along two standard parallels.
+    /// - `std_par_1`, `std_par_2` - First and second standard parallel (latitude). Scale is true along two standard parallels.
     /// - `ellps` - Reference [`Ellipsoid`].
     ///
     /// # Errors
@@ -56,6 +56,16 @@ impl LambertConformalConic {
         std_par_2: f64,
         ellps: Ellipsoid,
     ) -> Result<Self, ProjectionError> {
+        if !ref_lon.is_finite()
+            || !ref_lat.is_finite()
+            || !std_par_1.is_finite()
+            || !std_par_2.is_finite()
+        {
+            return Err(ProjectionError::IncorrectParams(
+                "one of arguments is not finite",
+            ));
+        }
+
         if !(-180.0..180.0).contains(&ref_lon) {
             return Err(ProjectionError::IncorrectParams(
                 "longitude must be between -180..180",
@@ -68,16 +78,6 @@ impl LambertConformalConic {
         {
             return Err(ProjectionError::IncorrectParams(
                 "latitude must be between -90..90",
-            ));
-        }
-
-        if !ref_lon.is_finite()
-            || !ref_lat.is_finite()
-            || !std_par_1.is_finite()
-            || !std_par_2.is_finite()
-        {
-            return Err(ProjectionError::IncorrectParams(
-                "one of arguments is not finite",
             ));
         }
 

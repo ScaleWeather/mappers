@@ -62,6 +62,12 @@ impl ModifiedAzimuthalEquidistant {
     /// - one or more latitudes are not within -90..90 range.
     /// - one or more arguments are not finite.
     pub fn new(ref_lon: f64, ref_lat: f64, ellps: Ellipsoid) -> Result<Self, ProjectionError> {
+        if !ref_lon.is_finite() || !ref_lat.is_finite() {
+            return Err(ProjectionError::IncorrectParams(
+                "one of arguments is not finite",
+            ));
+        }
+
         if !(-180.0..180.0).contains(&ref_lon) {
             return Err(ProjectionError::IncorrectParams(
                 "longitude must be between -180..180",
@@ -71,12 +77,6 @@ impl ModifiedAzimuthalEquidistant {
         if !(-90.0..90.0).contains(&ref_lat) {
             return Err(ProjectionError::IncorrectParams(
                 "latitude must be between -90..90",
-            ));
-        }
-
-        if !ref_lon.is_finite() || !ref_lat.is_finite() {
-            return Err(ProjectionError::IncorrectParams(
-                "one of arguments is not finite",
             ));
         }
 
