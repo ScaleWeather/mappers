@@ -42,3 +42,8 @@ fn lcc_single_par() {
 fn modified_azimuthal_equidistant() {
     projections::modified_azimuthal_equidistant::basic_correctness();
 }
+
+#[test]
+fn equidistant_cylindrical() {
+    projections::equidistant_cylindrical::basic_correctness();
+}

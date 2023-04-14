@@ -8,7 +8,7 @@ pub enum TestExtent {
     Local,
 }
 
-pub static ELLIPSOIDS_TEST_SET: [(Ellipsoid, &str); 6] = [
+static ELLIPSOIDS_TEST_SET: [(Ellipsoid, &str); 6] = [
     (Ellipsoid::WGS84, "WGS84"),
     (Ellipsoid::WGS72, "WGS72"),
     (Ellipsoid::WGS66, "WGS66"),
