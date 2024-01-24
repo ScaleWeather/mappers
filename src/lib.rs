@@ -55,10 +55,35 @@
 //!# Ok(())
 //!# }
 //!```
+//! 
 //! Some projections are mathematically exactly inversible, and technically
 //! geographical coordinates projected and inverse projected should be identical.
 //! However, in practice limitations of floating-point arithmetics will
 //! introduce some errors along the way, as shown in the example above.
+//! 
+//! ## Multithreading
+//! 
+//! For projecting multiple coordinates at once, the crate provides `_parallel`
+//! functions that are available in a (default) `multithreading` feature. These functions
+//! use `rayon` crate to parallelize the projection process. They are provided 
+//! mainly for convenience, as they are not much different than calling 
+//! `.par_iter()` on a slice of coordinates and mapping the projection function over it.
+//! 
+//!```
+//!# use mappers::{Ellipsoid, projections::LambertConformalConic, Projection, ProjectionError};
+//!#
+//!# fn main() -> Result<(), ProjectionError> {
+//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+//!
+//! // Parallel functions use slices of tuples as input and output
+//! let geographic_coordinates = vec![(6.8651, 45.8326); 10];
+//!
+//! let map_coordinates = lcc.project_parallel(&geographic_coordinates)?;
+//! let inversed_coordinates = lcc.inverse_project_parallel(&map_coordinates)?;
+//!
+//!# Ok(())
+//!# }
+//!```
 
 use dyn_clone::DynClone;
 use std::fmt::Debug;
@@ -117,6 +142,8 @@ pub trait Projection: Debug + DynClone + Send + Sync {
     /// Same as [`Projection::inverse_project()`] but does not check the result.
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64);
 
+    /// Function analogous to [`Projection::project()`] for projecting
+    /// multiple coordinates at once using multithreading.
     #[cfg(feature = "multithreading")]
     fn project_parallel(&self, coords: &[(f64, f64)]) -> Result<Vec<(f64, f64)>, ProjectionError> {
         use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -129,6 +156,8 @@ pub trait Projection: Debug + DynClone + Send + Sync {
         Ok(xy_points)
     }
 
+    /// Function analogous to [`Projection::inverse_project()`] for projecting
+    /// multiple coordinates at once using multithreading.
     #[cfg(feature = "multithreading")]
     fn inverse_project_parallel(
         &self,
@@ -144,6 +173,7 @@ pub trait Projection: Debug + DynClone + Send + Sync {
         Ok(coords)
     }
 
+    /// Same as [`Projection::project_parallel()`] but does not check the result.
     #[cfg(feature = "multithreading")]
     fn project_parallel_unchecked(&self, coords: &[(f64, f64)]) -> Vec<(f64, f64)> {
         use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -156,6 +186,7 @@ pub trait Projection: Debug + DynClone + Send + Sync {
         xy_points
     }
 
+    /// Same as [`Projection::inverse_project_parallel()`] but does not check the result.
     #[cfg(feature = "multithreading")]
     fn inverse_project_parallel_unchecked(&self, xy_points: &[(f64, f64)]) -> Vec<(f64, f64)> {
         use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
