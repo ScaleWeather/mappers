@@ -116,6 +116,57 @@ pub trait Projection: Debug + DynClone + Send + Sync {
 
     /// Same as [`Projection::inverse_project()`] but does not check the result.
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64);
+
+    #[cfg(feature = "multithreading")]
+    fn project_parallel(&self, coords: &[(f64, f64)]) -> Result<Vec<(f64, f64)>, ProjectionError> {
+        use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
+        let xy_points = coords
+            .par_iter()
+            .map(|(lon, lat)| self.project(*lon, *lat))
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(xy_points)
+    }
+
+    #[cfg(feature = "multithreading")]
+    fn inverse_project_parallel(
+        &self,
+        xy_points: &[(f64, f64)],
+    ) -> Result<Vec<(f64, f64)>, ProjectionError> {
+        use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
+        let coords = xy_points
+            .par_iter()
+            .map(|(x, y)| self.inverse_project(*x, *y))
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(coords)
+    }
+
+    #[cfg(feature = "multithreading")]
+    fn project_parallel_unchecked(&self, coords: &[(f64, f64)]) -> Vec<(f64, f64)> {
+        use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
+        let xy_points = coords
+            .par_iter()
+            .map(|(lon, lat)| self.project_unchecked(*lon, *lat))
+            .collect::<Vec<_>>();
+
+        xy_points
+    }
+
+    #[cfg(feature = "multithreading")]
+    fn inverse_project_parallel_unchecked(&self, xy_points: &[(f64, f64)]) -> Vec<(f64, f64)> {
+        use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+
+        let coords = xy_points
+            .par_iter()
+            .map(|(x, y)| self.inverse_project_unchecked(*x, *y))
+            .collect::<Vec<_>>();
+
+        coords
+    }
 }
 
 dyn_clone::clone_trait_object!(Projection);
