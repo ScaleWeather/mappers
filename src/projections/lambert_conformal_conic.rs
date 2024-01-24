@@ -49,6 +49,7 @@ impl LambertConformalConic {
     /// - one or more longitudes are not within -180..180 range.
     /// - one or more latitudes are not within -90..90 range.
     /// - one or more arguments are not finite.
+    /// - absolute value of sum of standard parallels is not positive |`std_par_1` + `std_par_2`| == 0.
     pub fn new(
         ref_lon: f64,
         ref_lat: f64,
@@ -79,6 +80,15 @@ impl LambertConformalConic {
             return Err(ProjectionError::IncorrectParams(
                 "latitude must be between -90..90",
             ));
+        }
+
+        {
+            let std_pars_abs_sum = (std_par_1 + std_par_2).abs();
+            if approx_eq!(f64, std_pars_abs_sum, 0.0) {
+                return Err(ProjectionError::IncorrectParams(
+                    "absolute value of sum of standard parallels must be positive",
+                ));
+            }
         }
 
         let phi_0 = ref_lat.to_radians();
