@@ -47,7 +47,7 @@ impl ModifiedAzimuthalEquidistant {
     /// constructor is non-trivial and tries to do as much projection computations as possible.
     /// Thus creating a new structure can involve a significant computational overhead.
     /// When projecting multiple coordinates only one instance of the structure should be created
-    /// and cloned/borrowed as needed.
+    /// and copied/borrowed as needed.
     ///
     /// # Arguments
     ///
