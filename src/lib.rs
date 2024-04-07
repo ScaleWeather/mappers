@@ -66,6 +66,44 @@
 //! However, in practice limitations of floating-point arithmetics will
 //! introduce some errors along the way, as shown in the example above.
 //!
+//! ## ConversionPipe
+//!
+//! This crate also provides a struct [`ConversionPipe`] that allows for easy
+//! conversion between two projections. It can be constructed directly from
+//! [`Projection`] with [`pipe_to`](Projection::pipe_to) method or directly
+//! with [`ConversionPipe::new()`].
+//! 
+//! Before using it please read the documentation of [`ConversionPipe`].
+//! 
+//! ### Example
+//! 
+//!```
+//!# use mappers::{Ellipsoid, Projection, ProjectionError, ConversionPipe};
+//!# use mappers::projections::{LambertConformalConic, LongitudeLatitude};
+//!# use float_cmp::assert_approx_eq;
+//!#
+//!# fn main() -> Result<(), ProjectionError> {
+//! // We start by defining the source and target projections
+//! // In this case we will use LCC and LongitudeLatitude
+//! // to show how a normal projection can be done with ConversionPipe
+//! let target_proj = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+//! let source_proj = LongitudeLatitude;
+//! 
+//! let (lon, lat) = (6.8651, 45.8326);
+//! 
+//! // Now we can convert to LCC and back to LongitudeLatitude
+//! let (x, y) = source_proj.pipe_to(&target_proj).convert(lon, lat)?;
+//! let (pipe_lon, pipe_lat) = target_proj.pipe_to(&source_proj).convert(x, y)?;
+//!
+//! // For simple cases the error remains small
+//! // but it can quickly grow with more complex conversions
+//! assert_approx_eq!(f64, lon, pipe_lon, epsilon = 1e-10);
+//! assert_approx_eq!(f64, lat, pipe_lat, epsilon = 1e-10);
+//!
+//!# Ok(())
+//!# }
+//!```
+
 
 use std::fmt::Debug;
 
@@ -78,7 +116,7 @@ pub mod projections;
 
 /// An interface for all projections included in the crate.
 ///
-/// This trait is kept as simple as possible and the most basic version of
+/// This trait is kept relatively simple and the most basic version of
 /// projection functions are implemented. Alternative functions for more complex
 /// types should be implemented by the user.
 pub trait Projection: Debug + Send + Sync + Copy {
@@ -132,7 +170,9 @@ pub trait Projection: Debug + Send + Sync + Copy {
 }
 
 /// A struct that allows for easy conversion between two projections.
-/// It can be constructed directly from [`Projection`] with [`pipe_to`](Projection::pipe_to) method.
+/// 
+/// It can be constructed directly with the constructor or
+/// from [`Projection`] with [`pipe_to`](Projection::pipe_to) method.
 ///
 /// The implementation is very naive as it converts coordinates to longitude and latitude then projects them
 /// to the target projection. Therefore projection and numerical errors are accumulated with every step and
