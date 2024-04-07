@@ -97,7 +97,8 @@ impl ModifiedAzimuthalEquidistant {
 }
 
 impl Projection for ModifiedAzimuthalEquidistant {
-    #[inline(always)]
+    #[inline]
+    #[allow(clippy::many_single_char_names)]
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64) {
         let lon = lon.to_radians();
         let lat = lat.to_radians();
@@ -136,7 +137,7 @@ impl Projection for ModifiedAzimuthalEquidistant {
         (x, y)
     }
 
-    #[inline(always)]
+    #[inline]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let c = (x * x + y * y).sqrt();
         let az = x.atan2(y);

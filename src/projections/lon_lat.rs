@@ -7,12 +7,12 @@ use crate::Projection;
 pub struct LongitudeLatitude;
 
 impl Projection for LongitudeLatitude {
-    #[inline(always)]
+    #[inline]
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64) {
         (lon, lat)
     }
 
-    #[inline(always)]
+    #[inline]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         (x, y)
     }

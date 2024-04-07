@@ -1,3 +1,8 @@
+#![deny(missing_docs)]
+#![deny(missing_debug_implementations)]
+#![warn(clippy::pedantic)]
+#![warn(clippy::perf)]
+
 //! Pure Rust geographical projections library. Similar to `Proj` in
 //! basic functionality but allows for a use in concurrent contexts.
 //!
@@ -84,7 +89,7 @@ pub trait Projection: Debug + Send + Sync + Copy {
     ///
     /// Returns [`ProjectionError::ProjectionImpossible`] when result of
     /// projection is not finite.
-    #[inline(always)]
+    #[inline]
     fn project(&self, lon: f64, lat: f64) -> Result<(f64, f64), ProjectionError> {
         let (x, y) = self.project_unchecked(lon, lat);
 
@@ -103,7 +108,7 @@ pub trait Projection: Debug + Send + Sync + Copy {
     ///
     /// Returns [`ProjectionError::InverseProjectionImpossible`] when result of
     /// inverse projection is not finite.
-    #[inline(always)]
+    #[inline]
     fn inverse_project(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let (lon, lat) = self.inverse_project_unchecked(x, y);
 
@@ -120,20 +125,21 @@ pub trait Projection: Debug + Send + Sync + Copy {
     /// Same as [`Projection::inverse_project()`] but does not check the result.
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64);
 
-    fn pipe_to<'a, TARGET: Projection>(&self, target: &TARGET) -> ConversionPipe<Self, TARGET> {
+    /// Creates [`ConversionPipe`] from this projection to provided target projection.
+    fn pipe_to<TARGET: Projection>(&self, target: &TARGET) -> ConversionPipe<Self, TARGET> {
         ConversionPipe::new(self, target)
     }
 }
 
 /// A struct that allows for easy conversion between two projections.
 /// It can be constructed directly from [`Projection`] with [`pipe_to`](Projection::pipe_to) method.
-/// 
+///
 /// The implementation is very naive as it converts coordinates to longitude and latitude then projects them
-/// to the target projection. Therefore projection and numerical errors are accumulated with every step and 
+/// to the target projection. Therefore projection and numerical errors are accumulated with every step and
 /// long conversion chains are discouraged.
-/// 
+///
 /// Main purpose of this struct is to allow creating generic conversion patterns independent of projections.
-/// 
+///
 /// For usage see examples in [the main module](crate).
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct ConversionPipe<S: Projection, T: Projection> {
@@ -141,7 +147,7 @@ pub struct ConversionPipe<S: Projection, T: Projection> {
     target: T,
 }
 
-impl<'a, S: Projection, T: Projection> ConversionPipe<S, T> {
+impl<S: Projection, T: Projection> ConversionPipe<S, T> {
     /// Creates a new conversion pipe from source to target projection.
     pub fn new(source: &S, target: &T) -> Self {
         Self {
@@ -156,9 +162,9 @@ impl<'a, S: Projection, T: Projection> ConversionPipe<S, T> {
     }
 
     /// Converts the coordinates from source to target projection.
-    /// 
+    ///
     /// # Errors
-    /// 
+    ///
     /// This function uses checked projection methods and returns [`ProjectionError`] if any step
     /// emits non-finite values.
     #[inline]
@@ -166,7 +172,6 @@ impl<'a, S: Projection, T: Projection> ConversionPipe<S, T> {
         let (lon, lat) = self.source.inverse_project(x, y)?;
         self.target.project(lon, lat)
     }
-
 
     /// Converts the coordinates from source to target projection without checking the result.
     #[inline]
