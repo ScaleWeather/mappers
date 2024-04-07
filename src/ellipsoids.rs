@@ -15,7 +15,7 @@ use geographiclib_rs::Geodesic;
 /// Because Rust consts currently do not support floating-point operations,
 /// `const_soft_float` crates is used to pre-define Ellipsoids as consts.
 /// The crater maintains consistent precision across all targets.
-/// 
+///
 /// Users can define their own ellipsoids as consts using the `new` function.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct Ellipsoid {
@@ -34,6 +34,7 @@ pub struct Ellipsoid {
 
 impl Ellipsoid {
     /// Ellipsoid constructor using semi-major axis and inverse flattening.
+    #[must_use]
     pub const fn new(semi_major_axis: f64, inverse_flattening: f64) -> Self {
         let I = inverse_flattening;
         let A = semi_major_axis;

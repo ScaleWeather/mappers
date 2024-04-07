@@ -1,13 +1,10 @@
 # mappers
 
-[![License](https://img.shields.io/github/license/ScaleWeather/mappers)](https://choosealicense.com/licenses/apache-2.0/)
-[![Crates.io](https://img.shields.io/crates/v/mappers)](https://crates.io/crates/mappers)
-[![dependency status](https://deps.rs/repo/github/ScaleWeather/mappers/status.svg)](https://deps.rs/repo/github/ScaleWeather/mappers)
-[![docs.rs](https://img.shields.io/docsrs/mappers)](https://docs.rs/mappers)
-
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ScaleWeather/mappers/linux.yml?branch=main&label=Build%20on%20Ubuntu)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ScaleWeather/mappers/windows.yml?branch=main&label=Build%20on%20Windows)
-![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/ScaleWeather/mappers/macos.yml?branch=main&label=Build%20on%20MacOS)
+[![Github Repository](https://img.shields.io/badge/Github-Repository-blue?style=flat-square&logo=github&color=blue)](https://github.com/ScaleWeather/mappers)
+[![Crates.io](https://img.shields.io/crates/v/mappers?style=flat-square)](https://crates.io/crates/mappers)
+[![License](https://img.shields.io/github/license/ScaleWeather/mappers?style=flat-square)](https://choosealicense.com/licenses/apache-2.0/)
+[![dependency status](https://deps.rs/repo/github/ScaleWeather/mappers/status.svg?style=flat-square)](https://deps.rs/repo/github/ScaleWeather/mappers)
+[![docs.rs](https://img.shields.io/docsrs/mappers?style=flat-square)](https://docs.rs/mappers)
 
 Pure Rust geographical projections library. Similar to `Proj` in basic functionality but allows for a use in concurrent contexts.
 
@@ -64,20 +61,29 @@ println!("lon: {}, lat: {}", lon, lat); // lon: 6.8651, lat: 45.83260000001716
 
 Some projections are mathematically exactly invertible, and technically geographical coordinates projected and inverse projected should be identical. However, in practice limitations of floating-point arithmetics will introduce some errors along the way, as shown in the example above.
 
-## Multithreading
+## ConversionPipe
 
-For projecting multiple coordinates at once, the crate provides `_parallel`
-functions that are available in a (default) `multithreading` feature. These functions
-use `rayon` crate to parallelize the projection process. They are provided
-mainly for convenience, as they are not much different than calling
-`.par_iter()` on a slice of coordinates and mapping the projection function over it.
+This crate also provides a struct `ConversionPipe` that allows for easy
+conversion between two projections. It can be constructed directly from
+`Projection` with `pipe_to` method or directlywith `ConversionPipe::new()`.
+
+### Example
 
 ```rust
-let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+// We start by defining the source and target projections
+// In this case we will use LCC and LongitudeLatitude
+// to show how a normal projection can be done with ConversionPipe
+let target_proj = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+let source_proj = LongitudeLatitude;
 
-// Parallel functions use slices of tuples as input and output
-let geographic_coordinates = vec![(6.8651, 45.8326); 10];
+let (lon, lat) = (6.8651, 45.8326);
 
-let map_coordinates = lcc.project_parallel(&geographic_coordinates)?;
-let inversed_coordinates = lcc.inverse_project_parallel(&map_coordinates)?;
+// Now we can convert to LCC and back to LongitudeLatitude
+let (x, y) = source_proj.pipe_to(&target_proj).convert(lon, lat)?;
+let (pipe_lon, pipe_lat) = target_proj.pipe_to(&source_proj).convert(x, y)?;
+
+// For simple cases the error remains small
+// but it can quickly grow with more complex conversions
+assert_approx_eq!(f64, lon, pipe_lon, epsilon = 1e-10);
+assert_approx_eq!(f64, lat, pipe_lat, epsilon = 1e-10);
 ```

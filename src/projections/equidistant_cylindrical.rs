@@ -24,13 +24,22 @@ pub struct EquidistantCylindrical {
     ref_lat: f64,
     ref_lon: f64,
     std_par: f64,
+
+    r: f64,
+    r_time_par_cos: f64,
 }
 
 impl EquidistantCylindrical {
     /// Equirectangular projection constructor.
     ///
-    /// This is a trivial constructor that only checks input parameters.
+    /// To reduce computational overhead of projection functions this
+    /// constructor is non-trivial and tries to do as much projection computations as possible.
+    /// Thus creating a new structure can involve a significant computational overhead.
+    /// When projecting multiple coordinates only one instance of the structure should be created
+    /// and copied/borrowed as needed.
+    ///
     /// Ellipsoid is not definable as this projection is only defined for sphere.
+    ///
     /// If standard parallel and reference longitude and latitude are 0, then
     /// this projection becomes *Lat-Lon* or *Plate Carrée* projection.
     ///
@@ -65,32 +74,36 @@ impl EquidistantCylindrical {
             ));
         }
 
+        let r = Ellipsoid::SPHERE.A;
+        let r_time_par_cos = r * std_par.to_radians().cos();
+
         Ok(EquidistantCylindrical {
             ref_lat: ref_lat.to_radians(),
             ref_lon: ref_lon.to_radians(),
             std_par: std_par.to_radians(),
+
+            r,
+            r_time_par_cos,
         })
     }
 }
 
 impl Projection for EquidistantCylindrical {
+    #[inline]
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64) {
         let lon = lon.to_radians();
         let lat = lat.to_radians();
 
-        let r = Ellipsoid::SPHERE.A;
-
-        let x = r * (lon - self.ref_lon) * self.std_par.cos();
-        let y = r * (lat - self.ref_lat);
+        let x = self.r_time_par_cos * (lon - self.ref_lon);
+        let y = self.r * (lat - self.ref_lat);
 
         (x, y)
     }
 
+    #[inline]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
-        let r = Ellipsoid::SPHERE.A;
-
-        let lon = x / (r * self.std_par.cos()) + self.ref_lon;
-        let lat = y / r + self.ref_lat;
+        let lon = (x / self.r_time_par_cos) + self.ref_lon;
+        let lat = (y / self.r) + self.ref_lat;
 
         (lon.to_degrees(), lat.to_degrees())
     }
