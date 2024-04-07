@@ -1,6 +1,6 @@
 [package]
 name = "mappers"
-version = "0.7.0"
+version = "0.7.1"
 edition = "2021"
 description = "Pure Rust geographical projections library"
 repository = "https://github.com/ScaleWeather/mappers"

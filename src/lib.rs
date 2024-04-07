@@ -72,11 +72,11 @@
 //! conversion between two projections. It can be constructed directly from
 //! [`Projection`] with [`pipe_to`](Projection::pipe_to) method or directly
 //! with [`ConversionPipe::new()`].
-//! 
+//!
 //! Before using it please read the documentation of [`ConversionPipe`].
-//! 
+//!
 //! ### Example
-//! 
+//!
 //!```
 //!# use mappers::{Ellipsoid, Projection, ProjectionError, ConversionPipe};
 //!# use mappers::projections::{LambertConformalConic, LongitudeLatitude};
@@ -88,9 +88,9 @@
 //! // to show how a normal projection can be done with ConversionPipe
 //! let target_proj = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
 //! let source_proj = LongitudeLatitude;
-//! 
+//!
 //! let (lon, lat) = (6.8651, 45.8326);
-//! 
+//!
 //! // Now we can convert to LCC and back to LongitudeLatitude
 //! let (x, y) = source_proj.pipe_to(&target_proj).convert(lon, lat)?;
 //! let (pipe_lon, pipe_lat) = target_proj.pipe_to(&source_proj).convert(x, y)?;
@@ -103,7 +103,6 @@
 //!# Ok(())
 //!# }
 //!```
-
 
 use std::fmt::Debug;
 
@@ -119,7 +118,7 @@ pub mod projections;
 /// This trait is kept relatively simple and the most basic version of
 /// projection functions are implemented. Alternative functions for more complex
 /// types should be implemented by the user.
-pub trait Projection: Debug + Send + Sync + Copy {
+pub trait Projection: Debug + Send + Sync + Copy + Clone + PartialEq + PartialOrd {
     /// Function to project geographical coordinates (in degrees) to cartographical
     /// coordinates (in meters) on a map with specified projection.
     ///
@@ -170,7 +169,7 @@ pub trait Projection: Debug + Send + Sync + Copy {
 }
 
 /// A struct that allows for easy conversion between two projections.
-/// 
+///
 /// It can be constructed directly with the constructor or
 /// from [`Projection`] with [`pipe_to`](Projection::pipe_to) method.
 ///
