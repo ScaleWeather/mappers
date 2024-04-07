@@ -61,29 +61,6 @@
 //! However, in practice limitations of floating-point arithmetics will
 //! introduce some errors along the way, as shown in the example above.
 //!
-//! ## Multithreading
-//!
-//! For projecting multiple coordinates at once, the crate provides `_parallel`
-//! functions that are available in a (default) `multithreading` feature. These functions
-//! use `rayon` crate to parallelize the projection process. They are provided
-//! mainly for convenience, as they are not much different than calling
-//! `.par_iter()` on a slice of coordinates and mapping the projection function over it.
-//!
-//!```
-//!# use mappers::{Ellipsoid, projections::LambertConformalConic, Projection, ProjectionError};
-//!#
-//!# fn main() -> Result<(), ProjectionError> {
-//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
-//!
-//! // Parallel functions use slices of tuples as input and output
-//! let geographic_coordinates = vec![(6.8651, 45.8326); 10];
-//!
-//! let map_coordinates = lcc.project_parallel(&geographic_coordinates)?;
-//! let inversed_coordinates = lcc.inverse_project_parallel(&map_coordinates)?;
-//!
-//!# Ok(())
-//!# }
-//!```
 
 use dyn_clone::DynClone;
 use std::fmt::Debug;
