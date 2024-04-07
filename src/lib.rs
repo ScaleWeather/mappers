@@ -121,7 +121,7 @@ pub trait Projection: Debug + Send + Sync + Copy {
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64);
 
     fn pipe_to<'a, TARGET: Projection>(&self, target: &TARGET) -> ConversionPipe<Self, TARGET> {
-        ConversionPipe::new(*self, *target)
+        ConversionPipe::new(self, target)
     }
 }
 
@@ -131,8 +131,11 @@ pub struct ConversionPipe<S: Projection, T: Projection> {
 }
 
 impl<'a, S: Projection, T: Projection> ConversionPipe<S, T> {
-    pub fn new(source: S, target: T) -> Self {
-        Self { source, target }
+    pub fn new(source: &S, target: &T) -> Self {
+        Self {
+            source: *source,
+            target: *target,
+        }
     }
 
     pub fn convert(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
