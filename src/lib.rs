@@ -125,12 +125,24 @@ pub trait Projection: Debug + Send + Sync + Copy {
     }
 }
 
+/// A struct that allows for easy conversion between two projections.
+/// It can be constructed directly from [`Projection`] with [`pipe_to`](Projection::pipe_to) method.
+/// 
+/// The implementation is very naive as it converts coordinates to longitude and latitude then projects them
+/// to the target projection. Therefore projection and numerical errors are accumulated with every step and 
+/// long conversion chains are discouraged.
+/// 
+/// Main purpose of this struct is to allow creating generic conversion patterns independent of projections.
+/// 
+/// For usage see examples in [the main module](crate).
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct ConversionPipe<S: Projection, T: Projection> {
     source: S,
     target: T,
 }
 
 impl<'a, S: Projection, T: Projection> ConversionPipe<S, T> {
+    /// Creates a new conversion pipe from source to target projection.
     pub fn new(source: &S, target: &T) -> Self {
         Self {
             source: *source,
@@ -138,11 +150,26 @@ impl<'a, S: Projection, T: Projection> ConversionPipe<S, T> {
         }
     }
 
+    /// Reverse the direction of conversion.
+    pub fn invert(&self) -> ConversionPipe<T, S> {
+        ConversionPipe::new(&self.target, &self.source)
+    }
+
+    /// Converts the coordinates from source to target projection.
+    /// 
+    /// # Errors
+    /// 
+    /// This function uses checked projection methods and returns [`ProjectionError`] if any step
+    /// emits non-finite values.
+    #[inline]
     pub fn convert(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let (lon, lat) = self.source.inverse_project(x, y)?;
         self.target.project(lon, lat)
     }
 
+
+    /// Converts the coordinates from source to target projection without checking the result.
+    #[inline]
     pub fn convert_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let (lon, lat) = self.source.inverse_project_unchecked(x, y);
         self.target.project_unchecked(lon, lat)
