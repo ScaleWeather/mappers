@@ -55,20 +55,20 @@
 //!# Ok(())
 //!# }
 //!```
-//! 
+//!
 //! Some projections are mathematically exactly inversible, and technically
 //! geographical coordinates projected and inverse projected should be identical.
 //! However, in practice limitations of floating-point arithmetics will
 //! introduce some errors along the way, as shown in the example above.
-//! 
+//!
 //! ## Multithreading
-//! 
+//!
 //! For projecting multiple coordinates at once, the crate provides `_parallel`
 //! functions that are available in a (default) `multithreading` feature. These functions
-//! use `rayon` crate to parallelize the projection process. They are provided 
-//! mainly for convenience, as they are not much different than calling 
+//! use `rayon` crate to parallelize the projection process. They are provided
+//! mainly for convenience, as they are not much different than calling
 //! `.par_iter()` on a slice of coordinates and mapping the projection function over it.
-//! 
+//!
 //!```
 //!# use mappers::{Ellipsoid, projections::LambertConformalConic, Projection, ProjectionError};
 //!#
@@ -100,7 +100,7 @@ pub mod projections;
 /// This trait is kept as simple as possible and the most basic version of
 /// projection functions are implemented. Alternative functions for more complex
 /// types should be implemented by the user.
-pub trait Projection: Debug + DynClone + Send + Sync {
+pub trait Projection: Debug + DynClone + Send + Sync + Copy {
     /// Function to project geographical coordinates (in degrees) to cartographical
     /// coordinates (in meters) on a map with specified projection.
     ///
@@ -142,62 +142,30 @@ pub trait Projection: Debug + DynClone + Send + Sync {
     /// Same as [`Projection::inverse_project()`] but does not check the result.
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64);
 
-    /// Function analogous to [`Projection::project()`] for projecting
-    /// multiple coordinates at once using multithreading.
-    #[cfg(feature = "multithreading")]
-    fn project_parallel(&self, coords: &[(f64, f64)]) -> Result<Vec<(f64, f64)>, ProjectionError> {
-        use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-
-        let xy_points = coords
-            .par_iter()
-            .map(|(lon, lat)| self.project(*lon, *lat))
-            .collect::<Result<Vec<_>, _>>()?;
-
-        Ok(xy_points)
-    }
-
-    /// Function analogous to [`Projection::inverse_project()`] for projecting
-    /// multiple coordinates at once using multithreading.
-    #[cfg(feature = "multithreading")]
-    fn inverse_project_parallel(
-        &self,
-        xy_points: &[(f64, f64)],
-    ) -> Result<Vec<(f64, f64)>, ProjectionError> {
-        use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-
-        let coords = xy_points
-            .par_iter()
-            .map(|(x, y)| self.inverse_project(*x, *y))
-            .collect::<Result<Vec<_>, _>>()?;
-
-        Ok(coords)
-    }
-
-    /// Same as [`Projection::project_parallel()`] but does not check the result.
-    #[cfg(feature = "multithreading")]
-    fn project_parallel_unchecked(&self, coords: &[(f64, f64)]) -> Vec<(f64, f64)> {
-        use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-
-        let xy_points = coords
-            .par_iter()
-            .map(|(lon, lat)| self.project_unchecked(*lon, *lat))
-            .collect::<Vec<_>>();
-
-        xy_points
-    }
-
-    /// Same as [`Projection::inverse_project_parallel()`] but does not check the result.
-    #[cfg(feature = "multithreading")]
-    fn inverse_project_parallel_unchecked(&self, xy_points: &[(f64, f64)]) -> Vec<(f64, f64)> {
-        use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-
-        let coords = xy_points
-            .par_iter()
-            .map(|(x, y)| self.inverse_project_unchecked(*x, *y))
-            .collect::<Vec<_>>();
-
-        coords
+    fn pipe_to<'a, TARGET: Projection>(&self, target: &TARGET) -> ConversionPipe<Self, TARGET> {
+        ConversionPipe::new(*self, *target)
     }
 }
 
-dyn_clone::clone_trait_object!(Projection);
+// dyn_clone::clone_trait_object!(Projection);
+
+pub struct ConversionPipe<S: Projection, T: Projection> {
+    source: S,
+    target: T,
+}
+
+impl<'a, S: Projection, T: Projection> ConversionPipe<S, T> {
+    pub fn new(source: S, target: T) -> Self {
+        Self { source, target }
+    }
+
+    pub fn convert(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
+        let (lon, lat) = self.source.inverse_project(x, y)?;
+        self.target.project(lon, lat)
+    }
+
+    pub fn convert_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
+        let (lon, lat) = self.source.inverse_project_unchecked(x, y);
+        self.target.project_unchecked(lon, lat)
+    }
+}

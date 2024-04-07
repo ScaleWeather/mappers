@@ -19,15 +19,9 @@ thiserror = { version = "1.0", default-features = false }
 geographiclib-rs = { version = "^0.2.3", default-features = false }
 dyn-clone = { version = "^1.0.10", default-features = false }
 const_soft_float = { version = "^0.1.2", default-features = false }
-rayon = { version = "^1.8", default-features = false, optional = true}
 
 [dev-dependencies]
 float-cmp = { version = "0.9", default-features = false, features = ["std"] }
 # REQUIRES: libproj-dev, clang, libtiff-dev and sqlite (binary!)
 proj = { version = "0.27", default-features = false, features = ["pkg_config"] }
-rand = { version = "0.8"}
-
-[features]
-default = ["multithreading"]
-multithreading = ["rayon"]
-
+rand = { version = "0.8" }
