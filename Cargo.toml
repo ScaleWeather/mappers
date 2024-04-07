@@ -17,7 +17,6 @@ exclude = [".github/*", ".vscode/*", ".idea/*", "data/*"]
 float-cmp = { version = "0.9", default-features = false, features = ["std"] }
 thiserror = { version = "1.0", default-features = false }
 geographiclib-rs = { version = "^0.2.3", default-features = false }
-dyn-clone = { version = "^1.0.10", default-features = false }
 const_soft_float = { version = "^0.1.2", default-features = false }
 
 [dev-dependencies]

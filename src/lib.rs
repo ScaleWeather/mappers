@@ -62,7 +62,6 @@
 //! introduce some errors along the way, as shown in the example above.
 //!
 
-use dyn_clone::DynClone;
 use std::fmt::Debug;
 
 pub use ellipsoids::Ellipsoid;
@@ -77,7 +76,7 @@ pub mod projections;
 /// This trait is kept as simple as possible and the most basic version of
 /// projection functions are implemented. Alternative functions for more complex
 /// types should be implemented by the user.
-pub trait Projection: Debug + DynClone + Send + Sync + Copy {
+pub trait Projection: Debug + Send + Sync + Copy {
     /// Function to project geographical coordinates (in degrees) to cartographical
     /// coordinates (in meters) on a map with specified projection.
     ///
@@ -123,8 +122,6 @@ pub trait Projection: Debug + DynClone + Send + Sync + Copy {
         ConversionPipe::new(*self, *target)
     }
 }
-
-// dyn_clone::clone_trait_object!(Projection);
 
 pub struct ConversionPipe<S: Projection, T: Projection> {
     source: S,
