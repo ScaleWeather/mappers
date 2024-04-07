@@ -89,6 +89,7 @@ impl EquidistantCylindrical {
 }
 
 impl Projection for EquidistantCylindrical {
+    #[inline(always)]
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64) {
         let lon = lon.to_radians();
         let lat = lat.to_radians();
@@ -99,6 +100,7 @@ impl Projection for EquidistantCylindrical {
         (x, y)
     }
 
+    #[inline(always)]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let lon = (x / self.r_time_par_cos) + self.ref_lon;
         let lat = (y / self.r) + self.ref_lat;

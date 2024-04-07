@@ -120,6 +120,7 @@ impl LambertConformalConic {
 }
 
 impl Projection for LambertConformalConic {
+    #[inline(always)]
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64) {
         let phi = lat.to_radians();
         let lambda = lon.to_radians();
@@ -134,6 +135,7 @@ impl Projection for LambertConformalConic {
         (x, y)
     }
 
+    #[inline(always)]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let rho = (self.n.signum()) * (x.powi(2) + (self.rho_0 - y).powi(2)).sqrt();
 
