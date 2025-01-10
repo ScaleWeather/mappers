@@ -1,6 +1,6 @@
 [package]
 name = "mappers"
-version = "0.7.1"
+version = "0.7.2"
 edition = "2021"
 description = "Pure Rust geographical projections library"
 repository = "https://github.com/ScaleWeather/mappers"
@@ -14,13 +14,13 @@ exclude = [".github/*", ".vscode/*", ".idea/*", "data/*"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-float-cmp = { version = "0.9", default-features = false, features = ["std"] }
-thiserror = { version = "1.0", default-features = false }
+float-cmp = { version = "0.10", default-features = false, features = ["std"] }
+thiserror = { version = "2.0", default-features = false }
 geographiclib-rs = { version = "^0.2.4", default-features = false }
 const_soft_float = { version = "^0.1.4", default-features = false }
 
 [dev-dependencies]
-float-cmp = { version = "0.9", default-features = false, features = ["std"] }
+float-cmp = { version = "0.10", default-features = false, features = ["std"] }
 # REQUIRES: libproj-dev, clang, libtiff-dev and sqlite (binary!)
-proj = { version = "0.27", default-features = false, features = ["pkg_config"] }
+proj = { version = "0.28", default-features = false, features = ["pkg_config"] }
 rand = { version = "0.8" }
