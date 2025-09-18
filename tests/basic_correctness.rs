@@ -127,6 +127,11 @@ fn equidistant_cylindrical() {
     special_cases::equidistant_cylindrical::basic_correctness();
 }
 
+#[test]
+fn oblique_lon_lat() {
+    special_cases::oblique_lon_lat::basic_correctness();
+}
+
 pub fn test_points_with_proj<P: Projection>(int_proj: &P, proj_str: &str, extent: TestExtent) {
     let ref_proj = Proj::new(proj_str).unwrap();
 
