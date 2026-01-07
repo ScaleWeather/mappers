@@ -1,28 +1,30 @@
+//! Lambert Conformal Conic projection (LCC) is a conic map projection used for aeronautical charts,
+//! portions of the State Plane Coordinate System, and many national and regional
+//! mapping systems [(Wikipedia, 2022)](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection).
+//!
+//! Summary by [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395):
+//!
+//! - Conic.
+//! - Conformal.
+//! - Parallels are unequally spaced arcs of concentric circles, more closely spaced near the center of the map.
+//! - Meridians are equally spaced radii of the same circles, thereby cutting parallels at right angles.
+//! - Scale is true along two standard parallels, normally, or along just one.
+//! - Pole in same hemisphere as standard parallels is a point; other pole is at infinity.
+//! - Used for maps of countries and regions with predominant east-west expanse.
+//! - Presented by Lambert in 1772.
+
+use crate::Projection;
 use crate::ellipsoids::Ellipsoid;
 use crate::errors::{
-    ensure_finite, ensure_within_range, unpack_required_parameter, ProjectionError,
+    ProjectionError, ensure_finite, ensure_within_range, unpack_required_parameter,
 };
-use crate::Projection;
 use float_cmp::approx_eq;
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
 
 #[cfg(feature = "tracing")]
 use tracing::instrument;
 
-/// Lambert Conformal Conic projection (LCC) is a conic map projection used for aeronautical charts,
-/// portions of the State Plane Coordinate System, and many national and regional
-/// mapping systems [(Wikipedia, 2022)](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection).
-///
-/// Summary by [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395):
-///
-/// - Conic.
-/// - Conformal.
-/// - Parallels are unequally spaced arcs of concentric circles, more closely spaced near the center of the map.
-/// - Meridians are equally spaced radii of the same circles, thereby cutting parallels at right angles.
-/// - Scale is true along two standard parallels, normally, or along just one.
-/// - Pole in same hemisphere as standard parallels is a point; other pole is at infinity.
-/// - Used for maps of countries and regions with predominant east-west expanse.
-/// - Presented by Lambert in 1772.
+/// Main projection struct that is constructed from [`LambertConformalConicBuilder`] and used for computations.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct LambertConformalConic {
     lambda_0: f64,
@@ -35,14 +37,17 @@ pub struct LambertConformalConic {
 impl LambertConformalConic {
     /// Initializes builder with default values.
     /// Projection parameters can be set with builder methods,
-    /// see documentation of those methods to check which parmeters are required
+    /// refer to the documentation of those methods to check which parmeters are required
     /// and default values for optional arguments.
-    #[must_use] 
+    #[must_use]
     pub fn builder() -> LambertConformalConicBuilder {
         LambertConformalConicBuilder::default()
     }
 }
 
+/// Builder struct which allows to construct [`LambertConformalConic`] projection.
+/// Refer to the documentation of this struct's methods to check which parmeters are required
+/// and default values for optional arguments.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct LambertConformalConicBuilder {
     ref_lon: Option<f64>,
