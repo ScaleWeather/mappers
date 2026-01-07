@@ -1,7 +1,7 @@
 use crate::Projection;
 
 /// This is a trivial projection that does not project anything.
-/// Its purpose is to be used in generic uses of `ConversionPipe` where
+/// Its purpose is to be used in generic uses of [`ConversionPipe`](crate::ConversionPipe) where
 /// source or target uses geographical coordinates.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
 pub struct LongitudeLatitude;

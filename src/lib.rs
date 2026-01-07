@@ -15,7 +15,7 @@
 //! ## Usage example
 //!
 //! We can project the geographical coordinates to cartographic
-//! coordinates on a map with sepcified projection as follows:
+//! coordinates on a map with one of implemented [`projections`] as follows:
 //!
 //!```
 //!# use mappers::{Ellipsoid, projections::LambertConformalConic, Projection, ProjectionError};
@@ -97,7 +97,7 @@
 //!     .ref_lonlat(30., 30.)
 //!     .standard_parallels(30., 60.)
 //!     .initialize_projection()?;
-//! 
+//!
 //! // LongitudeLatitude projection is an empty struct
 //! let source_proj = LongitudeLatitude;
 //!
@@ -124,7 +124,7 @@
 //!
 //! This functionality must be enabled with `tracing` feature.
 //!
-//! These functions themselve don't emit any tracing messages so to get the information provided
+//! These functions themselves don't emit any tracing messages so to get the information provided
 //! by the `instrument` macro, tracing subscriber should be configured to show span events.
 //! This can be achieved using, for example `.with_span_events(FmtSpan::FULL)`.
 
@@ -145,6 +145,8 @@ pub mod projections;
 /// This trait is kept relatively simple and the most basic version of
 /// projection functions are implemented. Alternative functions for more complex
 /// types should be implemented by the user.
+///
+/// Available projections are available in [`projections`] module documentation.
 pub trait Projection: Debug + Send + Sync + Copy + Clone + PartialEq + PartialOrd {
     /// Function to project geographical coordinates (in degrees) to cartographical
     /// coordinates (in meters) on a map with specified projection.

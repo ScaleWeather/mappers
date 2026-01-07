@@ -1,26 +1,31 @@
+//! The equirectangular projection (also called the **equidistant cylindrical** projection
+//! or la carte parallélogrammatique projection), and which includes the special case
+//! of the plate carrée projection (also called the geographic projection,
+//! lat/lon projection, or plane chart), is a simple map projection attributed to
+//! Marinus of Tyre, who Ptolemy claims invented the projection about AD 100.
+//! [(Wikipedia, 2022)](https://en.wikipedia.org/wiki/Equirectangular_projection).
+//!
+//! Summary by [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395):
+//!
+//! - Cylindrical.
+//! - Neither equal-area nor conformal.
+//! - Meridians and parallels are equidistant straight lines, intersecting at right angles.
+//! - Poles shown as lines.
+//! - Used for world or regional maps.
+//! - Very simple construction.
+//! - Used only in spherical form.
+//! - Presented by Eratosthenes (B.C.) or Marinus (A.D. 100).
+
+use crate::Projection;
 use crate::ellipsoids::Ellipsoid;
 use crate::errors::{
-    ensure_finite, ensure_within_range, unpack_required_parameter, ProjectionError,
+    ProjectionError, ensure_finite, ensure_within_range, unpack_required_parameter,
 };
-use crate::Projection;
 
-/// The equirectangular projection (also called the **equidistant cylindrical** projection
-/// or la carte parallélogrammatique projection), and which includes the special case
-/// of the plate carrée projection (also called the geographic projection,
-/// lat/lon projection, or plane chart), is a simple map projection attributed to
-/// Marinus of Tyre, who Ptolemy claims invented the projection about AD 100.
-/// [(Wikipedia, 2022)](https://en.wikipedia.org/wiki/Equirectangular_projection).
-///
-/// Summary by [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395):
-///
-/// - Cylindrical.
-/// - Neither equal-area nor conformal.
-/// - Meridians and parallels are equidistant straight lines, intersecting at right angles.
-/// - Poles shown as lines.
-/// - Used for world or regional maps.
-/// - Very simple construction.
-/// - Used only in spherical form.
-/// - Presented by Eratosthenes (B.C.) or Marinus (A.D. 100).
+#[cfg(feature = "tracing")]
+use tracing::instrument;
+
+/// Main projection struct that is constructed from [`EquidistantCylindricalBuilder`] and used for computations.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct EquidistantCylindrical {
     ref_lat: f64,
@@ -34,14 +39,17 @@ pub struct EquidistantCylindrical {
 impl EquidistantCylindrical {
     /// Initializes builder with default values.
     /// Projection parameters can be set with builder methods,
-    /// see documentation of those methods to check which parmeters are required
+    /// refer to the documentation of those methods to check which parmeters are required
     /// and default values for optional arguments.
-    #[must_use] 
+    #[must_use]
     pub fn builder() -> EquidistantCylindricalBuilder {
         EquidistantCylindricalBuilder::default()
     }
 }
 
+/// Builder struct which allows to construct [`EquidistantCylindrical`] projection.
+/// Refer to the documentation of this struct's methods to check which parmeters are required
+/// and default values for optional arguments.
 #[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
 pub struct EquidistantCylindricalBuilder {
     ref_lon: Option<f64>,
@@ -86,14 +94,9 @@ impl EquidistantCylindricalBuilder {
     /// If standard parallel and reference longitude and latitude are 0, then
     /// this projection becomes *Lat-Lon* or *Plate Carrée* projection.
     ///
-    /// # Arguments
-    ///
-    /// - `ref_lon`, `ref_lat` - Reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
-    /// - `std_par` - Standard parallel (latitude) along which the scale is true.
-    ///
     /// # Errors
     ///
-    /// Returns [`ProjectionError::IncorrectParams`] with additional information when:
+    /// Returns [`ProjectionError`] with additional information when:
     ///
     /// - one or more longitudes are not within -180..180 range.
     /// - one or more latitudes are not within -90..90 range.
@@ -124,6 +127,7 @@ impl EquidistantCylindricalBuilder {
 
 impl Projection for EquidistantCylindrical {
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64) {
         let lon = lon.to_radians();
         let lat = lat.to_radians();
@@ -135,6 +139,7 @@ impl Projection for EquidistantCylindrical {
     }
 
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let lon = (x / self.r_time_par_cos) + self.ref_lon;
         let lat = (y / self.r) + self.ref_lat;
