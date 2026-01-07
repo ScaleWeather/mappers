@@ -1,6 +1,10 @@
 use float_cmp::approx_eq;
 
-use crate::{ellipsoids::Ellipsoid, Projection, ProjectionError};
+use crate::{
+    ellipsoids::Ellipsoid,
+    errors::{ensure_finite, ensure_within_range, unpack_required_parameter},
+    Projection, ProjectionError,
+};
 
 /// This is a modified version of the [`Azimuthal Equidistant`](crate::projections::AzimuthalEquidistant) projection,
 /// defined for islands of Micronesia and described by [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395).
@@ -41,6 +45,46 @@ pub struct ModifiedAzimuthalEquidistant {
 }
 
 impl ModifiedAzimuthalEquidistant {
+    /// Initializes builder with default values.
+    /// Projection parameters can be set with builder methods,
+    /// see documentation of those methods to check which parmeters are required
+    /// and default values for optional arguments.
+    pub fn builder() -> ModifiedAzimuthalEquidistantBuilder {
+        ModifiedAzimuthalEquidistantBuilder::default()
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
+pub struct ModifiedAzimuthalEquidistantBuilder {
+    ref_lon: Option<f64>,
+    ref_lat: Option<f64>,
+    ellipsoid: Ellipsoid,
+}
+
+impl Default for ModifiedAzimuthalEquidistantBuilder {
+    fn default() -> Self {
+        Self {
+            ref_lon: None,
+            ref_lat: None,
+            ellipsoid: Ellipsoid::WGS84,
+        }
+    }
+}
+
+impl ModifiedAzimuthalEquidistantBuilder {
+    /// *(required)* Sets reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
+    pub fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
+        self.ref_lon = Some(lon);
+        self.ref_lat = Some(lat);
+        self
+    }
+
+    /// *(optional)* Sets reference [`Ellipsoid`], defaults to [`WGS84`](Ellipsoid::WGS84).
+    pub fn ellipsoid(&mut self, ellps: Ellipsoid) -> &mut Self {
+        self.ellipsoid = ellps;
+        self
+    }
+
     /// `ModifiedAzimuthalEquidistant` projection constructor.
     ///
     /// To reduce computational overhead of projection functions this
@@ -49,36 +93,21 @@ impl ModifiedAzimuthalEquidistant {
     /// When projecting multiple coordinates only one instance of the structure should be created
     /// and copied/borrowed as needed.
     ///
-    /// # Arguments
-    ///
-    /// - `ref_lon`, `ref_lat` - Reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
-    /// - `ellps` - Reference [`Ellipsoid`].
-    ///
     /// # Errors
     ///
-    /// Returns [`ProjectionError::IncorrectParams`] with additional information when:
+    /// Returns [`ProjectionError`] with additional information when:
     ///
     /// - one or more longitudes are not within -180..180 range.
     /// - one or more latitudes are not within -90..90 range.
     /// - one or more arguments are not finite.
-    pub fn new(ref_lon: f64, ref_lat: f64, ellps: Ellipsoid) -> Result<Self, ProjectionError> {
-        if !ref_lon.is_finite() || !ref_lat.is_finite() {
-            return Err(ProjectionError::IncorrectParams(
-                "one of arguments is not finite",
-            ));
-        }
+    pub fn initialize_projection(&self) -> Result<ModifiedAzimuthalEquidistant, ProjectionError> {
+        let ref_lon = unpack_required_parameter!(self, ref_lon);
+        let ref_lat = unpack_required_parameter!(self, ref_lat);
+        let ellps = self.ellipsoid;
+        ensure_finite!(ref_lon, ref_lat);
 
-        if !(-180.0..180.0).contains(&ref_lon) {
-            return Err(ProjectionError::IncorrectParams(
-                "longitude must be between -180..180",
-            ));
-        }
-
-        if !(-90.0..90.0).contains(&ref_lat) {
-            return Err(ProjectionError::IncorrectParams(
-                "latitude must be between -90..90",
-            ));
-        }
+        ensure_within_range!(ref_lon, -180.0..180.0);
+        ensure_within_range!(ref_lat, -90.0..90.0);
 
         let lon_0 = ref_lon.to_radians();
         let lat_0 = ref_lat.to_radians();

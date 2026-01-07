@@ -97,7 +97,7 @@ impl AzimuthalEquidistantBuilder {
     /// - one or more arguments are not finite.
     pub fn initialize_projection(&self) -> Result<AzimuthalEquidistant, ProjectionError> {
         let ref_lon = unpack_required_parameter!(self, ref_lon);
-        let ref_lat = unpack_required_parameter!(self, ref_lon);
+        let ref_lat = unpack_required_parameter!(self, ref_lat);
         let ellps = self.ellipsoid;
         ensure_finite!(ref_lon, ref_lat);
 
