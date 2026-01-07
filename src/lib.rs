@@ -73,7 +73,7 @@
 //! However, in practice limitations of floating-point arithmetics will
 //! introduce some errors along the way, as shown in the example above.
 //!
-//! ## ConversionPipe
+//! ## `ConversionPipe`
 //!
 //! This crate also provides a struct [`ConversionPipe`] that allows for easy
 //! conversion between two projections. It can be constructed directly from

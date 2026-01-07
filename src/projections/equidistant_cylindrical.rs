@@ -36,6 +36,7 @@ impl EquidistantCylindrical {
     /// Projection parameters can be set with builder methods,
     /// see documentation of those methods to check which parmeters are required
     /// and default values for optional arguments.
+    #[must_use] 
     pub fn builder() -> EquidistantCylindricalBuilder {
         EquidistantCylindricalBuilder::default()
     }
