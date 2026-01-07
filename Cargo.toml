@@ -18,9 +18,15 @@ float-cmp = { version = "0.10", default-features = false, features = ["std"] }
 thiserror = { version = "2.0", default-features = false }
 geographiclib-rs = { version = "^0.2.5", default-features = false }
 const_soft_float = { version = "^0.1.4", default-features = false }
+tracing = { version = "0.1", optional = true, default-features = false, features = [
+    "attributes",
+] }
 
 [dev-dependencies]
 float-cmp = { version = "0.10", default-features = false, features = ["std"] }
 # REQUIRES: libproj-dev, clang, libtiff-dev and sqlite (binary!)
 proj = { version = "0.31", default-features = false, features = ["pkg_config"] }
 rand = { version = "0.9" }
+
+[features]
+tracing = ["dep:tracing"]

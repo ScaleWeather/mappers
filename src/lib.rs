@@ -103,8 +103,23 @@
 //!# Ok(())
 //!# }
 //!```
+//!
+//! ## Tracing
+//! Functions that are likely to be called in a complex chain of computations,
+//! namely `project()`/`inverse_project()` (checked and unchecked) from [`Projection`] trait and
+//! `convert()` (checked and unchecked) from [`ConversionPipe`], implement `instrument` macro from
+//! `tracing` macro for easier debugging.
+//!
+//! This functionality must be enabled with `tracing` feature.
+//!
+//! These functions themselve don't emit any tracing messages so to get the information provided
+//! by the `instrument` macro, tracing subscriber should be configured to show span events.
+//! This can be achieved using, for example `.with_span_events(FmtSpan::FULL)`.
 
 use std::fmt::Debug;
+
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 pub use ellipsoids::Ellipsoid;
 pub use errors::ProjectionError;
@@ -127,6 +142,7 @@ pub trait Projection: Debug + Send + Sync + Copy + Clone + PartialEq + PartialOr
     /// Returns [`ProjectionError::ProjectionImpossible`] when result of
     /// projection is not finite.
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn project(&self, lon: f64, lat: f64) -> Result<(f64, f64), ProjectionError> {
         let (x, y) = self.project_unchecked(lon, lat);
 
@@ -146,6 +162,7 @@ pub trait Projection: Debug + Send + Sync + Copy + Clone + PartialEq + PartialOr
     /// Returns [`ProjectionError::InverseProjectionImpossible`] when result of
     /// inverse projection is not finite.
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn inverse_project(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let (lon, lat) = self.inverse_project_unchecked(x, y);
 
@@ -207,6 +224,7 @@ impl<S: Projection, T: Projection> ConversionPipe<S, T> {
     /// This function uses checked projection methods and returns [`ProjectionError`] if any step
     /// emits non-finite values.
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     pub fn convert(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let (lon, lat) = self.source.inverse_project(x, y)?;
         self.target.project(lon, lat)
@@ -214,6 +232,7 @@ impl<S: Projection, T: Projection> ConversionPipe<S, T> {
 
     /// Converts the coordinates from source to target projection without checking the result.
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     pub fn convert_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let (lon, lat) = self.source.inverse_project_unchecked(x, y);
         self.target.project_unchecked(lon, lat)

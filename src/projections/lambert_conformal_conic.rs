@@ -6,6 +6,9 @@ use crate::Projection;
 use float_cmp::approx_eq;
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
 
+#[cfg(feature = "tracing")]
+use tracing::instrument;
+
 /// Lambert Conformal Conic projection (LCC) is a conic map projection used for aeronautical charts,
 /// portions of the State Plane Coordinate System, and many national and regional
 /// mapping systems [(Wikipedia, 2022)](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection).
@@ -153,6 +156,7 @@ impl LambertConformalConicBuilder {
 
 impl Projection for LambertConformalConic {
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn project_unchecked(&self, lon: f64, lat: f64) -> (f64, f64) {
         let phi = lat.to_radians();
         let lambda = lon.to_radians();
@@ -168,6 +172,7 @@ impl Projection for LambertConformalConic {
     }
 
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let rho = (self.n.signum()) * (x.powi(2) + (self.rho_0 - y).powi(2)).sqrt();
 
