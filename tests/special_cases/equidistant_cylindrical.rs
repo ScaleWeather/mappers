@@ -8,9 +8,11 @@ pub(crate) fn basic_correctness() {
     for ref_lon in (-30..30).step_by(10) {
         for ref_lat in (-30..30).step_by(10) {
             for std_par in (-30..30).step_by(10) {
-                let int_proj =
-                    EquidistantCylindrical::new(ref_lon as f64, ref_lat as f64, std_par as f64)
-                        .unwrap();
+                let int_proj = EquidistantCylindrical::builder()
+                    .ref_lonlat(ref_lon as f64, ref_lat as f64)
+                    .standard_parallel(std_par as f64)
+                    .initialize_projection()
+                    .unwrap();
 
                 let proj_str = format!(
                     "+proj=eqc +lon_0={} +lat_0={} +lat_ts={} +ellps=sphere",
