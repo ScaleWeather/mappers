@@ -67,9 +67,7 @@ fn conversion_arc_interop() {
         let handle = thread::spawn(move || {
             let (lcc_x, lcc_y) = ll.pipe_to(&*lcc).convert(25.0, 45.0).unwrap();
             let (aeqd_x, aeqd_y) = lcc.pipe_to(&*aeqd).convert(lcc_x, lcc_y).unwrap();
-            let coords = aeqd.pipe_to(&*ll).convert(aeqd_x, aeqd_y).unwrap();
-
-            coords
+            aeqd.pipe_to(&*ll).convert(aeqd_x, aeqd_y).unwrap()
         });
         handles.push(handle);
     }
