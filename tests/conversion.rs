@@ -15,7 +15,11 @@ fn conversion_api_and_correctness() {
         .ellipsoid(Ellipsoid::WGS84)
         .initialize_projection()
         .unwrap();
-    let aeqd = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::WGS84).unwrap();
+    let aeqd = AzimuthalEquidistant::builder()
+        .ref_lonlat(30., 30.)
+        .ellipsoid(Ellipsoid::WGS84)
+        .initialize_projection()
+        .unwrap();
 
     let (lon, lat) = (25.0, 45.0);
     let (lcc_x, lcc_y) = lcc.project(lon, lat).unwrap();

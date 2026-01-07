@@ -8,7 +8,11 @@ use mappers::{
 
 #[test]
 fn arc_interop() {
-    let proj = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::WGS84).unwrap();
+    let proj = AzimuthalEquidistant::builder()
+        .ref_lonlat(30., 30.)
+        .ellipsoid(Ellipsoid::WGS84)
+        .initialize_projection()
+        .unwrap();
     let proj = Arc::new(proj);
     let mut handles = vec![];
 
@@ -43,7 +47,11 @@ fn conversion_arc_interop() {
         .ellipsoid(Ellipsoid::WGS84)
         .initialize_projection()
         .unwrap();
-    let aeqd = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::WGS84).unwrap();
+    let aeqd = AzimuthalEquidistant::builder()
+        .ref_lonlat(30., 30.)
+        .ellipsoid(Ellipsoid::WGS84)
+        .initialize_projection()
+        .unwrap();
 
     let ll = Arc::new(ll);
     let lcc = Arc::new(lcc);
