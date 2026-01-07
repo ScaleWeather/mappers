@@ -1,5 +1,7 @@
 use crate::ellipsoids::Ellipsoid;
-use crate::errors::ProjectionError;
+use crate::errors::{
+    ensure_finite, ensure_within_range, unpack_required_parameter, ProjectionError,
+};
 use crate::Projection;
 use float_cmp::approx_eq;
 use std::f64::consts::{FRAC_PI_2, FRAC_PI_4};
@@ -28,6 +30,64 @@ pub struct LambertConformalConic {
 }
 
 impl LambertConformalConic {
+    /// Initializes builder with default values.
+    /// Projection parameters can be set with builder methods,
+    /// see documentation of those methods to check which parmeters are required
+    /// and default values for optional arguments.
+    pub fn builder() -> LambertConformalConicBuilder {
+        LambertConformalConicBuilder::default()
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, PartialOrd, Debug)]
+pub struct LambertConformalConicBuilder {
+    ref_lon: Option<f64>,
+    ref_lat: Option<f64>,
+    std_parallel_1: Option<f64>,
+    std_parallel_2: Option<f64>,
+    ellipsoid: Ellipsoid,
+}
+
+impl Default for LambertConformalConicBuilder {
+    fn default() -> Self {
+        Self {
+            ref_lon: None,
+            ref_lat: None,
+            std_parallel_1: None,
+            std_parallel_2: None,
+            ellipsoid: Ellipsoid::WGS84,
+        }
+    }
+}
+
+impl LambertConformalConicBuilder {
+    /// *(required, alternative with [`standard_parallels`](LambertConformalConicBuilder::standard_parallels))* Sets first and second standard parallel (latitude) to the same value. Scale is true along that parallel.
+    pub fn single_parallel(&mut self, standard_parallel: f64) -> &mut Self {
+        self.std_parallel_1 = Some(standard_parallel);
+        self.std_parallel_2 = Some(standard_parallel);
+        self
+    }
+
+    /// *(required, alternative with [`single_parallel`](LambertConformalConicBuilder::single_parallel))* Sets first and second standard parallel (latitude). Scale is true along those two standard parallels.
+    pub fn standard_parallels(&mut self, std_parallel_1: f64, std_parallel_2: f64) -> &mut Self {
+        self.std_parallel_1 = Some(std_parallel_1);
+        self.std_parallel_2 = Some(std_parallel_2);
+        self
+    }
+
+    /// *(required)* Sets reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
+    pub fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
+        self.ref_lon = Some(lon);
+        self.ref_lat = Some(lat);
+        self
+    }
+
+    /// *(optional)* Sets reference [`Ellipsoid`], defaults to [`WGS84`](Ellipsoid::WGS84).
+    pub fn ellipsoid(&mut self, ellps: Ellipsoid) -> &mut Self {
+        self.ellipsoid = ellps;
+        self
+    }
+
     /// LCC projection constructor.
     ///
     /// To reduce computational overhead of projection functions this
@@ -36,59 +96,31 @@ impl LambertConformalConic {
     /// When projecting multiple coordinates only one instance of the structure should be created
     /// and copied/borrowed as needed.
     ///
-    /// # Arguments
-    ///
-    /// - `ref_lon`, `ref_lat` - Reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
-    /// - `std_par_1`, `std_par_2` - First and second standard parallel (latitude). Scale is true along two standard parallels.
-    /// - `ellps` - Reference [`Ellipsoid`].
-    ///
     /// # Errors
     ///
-    /// Returns [`ProjectionError::IncorrectParams`] with additional information when:
+    /// Returns [`ProjectionError`] with additional information when:
     ///
     /// - one or more longitudes are not within -180..180 range.
     /// - one or more latitudes are not within -90..90 range.
     /// - one or more arguments are not finite.
     /// - absolute value of sum of standard parallels is not positive |`std_par_1` + `std_par_2`| == 0.
-    pub fn new(
-        ref_lon: f64,
-        ref_lat: f64,
-        std_par_1: f64,
-        std_par_2: f64,
-        ellps: Ellipsoid,
-    ) -> Result<Self, ProjectionError> {
-        if !ref_lon.is_finite()
-            || !ref_lat.is_finite()
-            || !std_par_1.is_finite()
-            || !std_par_2.is_finite()
-        {
-            return Err(ProjectionError::IncorrectParams(
-                "one of arguments is not finite",
-            ));
-        }
+    pub fn initialize_projection(&self) -> Result<LambertConformalConic, ProjectionError> {
+        let ref_lon = unpack_required_parameter!(self, ref_lon);
+        let ref_lat = unpack_required_parameter!(self, ref_lon);
+        let std_par_1 = unpack_required_parameter!(self, std_parallel_1);
+        let std_par_2 = unpack_required_parameter!(self, std_parallel_2);
+        let ellps = self.ellipsoid;
+        ensure_finite!(ref_lon, ref_lat, std_par_1, std_par_2);
 
-        if !(-180.0..180.0).contains(&ref_lon) {
-            return Err(ProjectionError::IncorrectParams(
-                "longitude must be between -180..180",
-            ));
-        }
+        ensure_within_range!(ref_lon, -180.0..180.0);
+        ensure_within_range!(ref_lat, -90.0..90.0);
+        ensure_within_range!(std_par_1, -90.0..90.0);
+        ensure_within_range!(std_par_2, -90.0..90.0);
 
-        if !(-90.0..90.0).contains(&ref_lat)
-            || !(-90.0..90.0).contains(&std_par_1)
-            || !(-90.0..90.0).contains(&std_par_2)
-        {
+        if approx_eq!(f64, (std_par_1 + std_par_2).abs(), 0.0) {
             return Err(ProjectionError::IncorrectParams(
-                "latitude must be between -90..90",
+                "absolute value of sum of standard parallels must be positive",
             ));
-        }
-
-        {
-            let std_pars_abs_sum = (std_par_1 + std_par_2).abs();
-            if approx_eq!(f64, std_pars_abs_sum, 0.0) {
-                return Err(ProjectionError::IncorrectParams(
-                    "absolute value of sum of standard parallels must be positive",
-                ));
-            }
         }
 
         let phi_0 = ref_lat.to_radians();

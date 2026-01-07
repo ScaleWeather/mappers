@@ -93,6 +93,26 @@ macro_rules! basic_correctness_test {
     };
 }
 
+macro_rules! basic_correctness_with_builder {
+    ($builder:ident,$projstr:expr) => {
+        for (ellps, ellps_name) in ELLIPSOIDS_TEST_SET {
+            let int_proj = $builder.ellipsoid(ellps).initialize_projection().unwrap();
+
+            test_points_with_proj(
+                &int_proj,
+                &format!("{} +ellps={}", $projstr, ellps_name),
+                TestExtent::Global,
+            );
+
+            test_points_with_proj(
+                &int_proj,
+                &format!("{} +ellps={}", $projstr, ellps_name),
+                TestExtent::Local,
+            );
+        }
+    };
+}
+
 #[test]
 fn azimuthal_equidistant() {
     let constructor = AzimuthalEquidistant::new;
@@ -103,18 +123,24 @@ fn azimuthal_equidistant() {
 
 #[test]
 fn lambert_conformal_conic() {
-    let constructor = LambertConformalConic::new;
+    let mut projection_builder = LambertConformalConic::builder();
+    projection_builder
+        .standard_parallels(30.0, 60.0)
+        .ref_lonlat(30.0, 30.0);
     let partial_proj = "+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=30.0 +lat_0=30.0";
 
-    basic_correctness_test!(constructor, 30.0, 30.0, 30.0, 60.0, partial_proj);
+    basic_correctness_with_builder!(projection_builder, partial_proj);
 }
 
 #[test]
 fn lcc_single_par() {
-    let constructor = LambertConformalConic::new;
+    let mut projection_builder = LambertConformalConic::builder();
+    projection_builder
+        .single_parallel(40.0)
+        .ref_lonlat(30.0, 30.0);
     let partial_proj = "+proj=lcc +lat_1=40.0 +lat_2=40.0 +lon_0=30.0 +lat_0=30.0";
 
-    basic_correctness_test!(constructor, 30.0, 30.0, 40.0, 40.0, partial_proj);
+    basic_correctness_with_builder!(projection_builder, partial_proj);
 }
 
 #[test]

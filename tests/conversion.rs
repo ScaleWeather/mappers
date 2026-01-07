@@ -9,7 +9,12 @@ const TOLERANCE: f64 = 1e-5;
 #[test]
 fn conversion_api_and_correctness() {
     let ll = LongitudeLatitude;
-    let lcc = LambertConformalConic::new(30.0, 30.0, 30.0, 60.0, Ellipsoid::WGS84).unwrap();
+    let lcc = LambertConformalConic::builder()
+        .ref_lonlat(30., 30.)
+        .standard_parallels(30., 60.)
+        .ellipsoid(Ellipsoid::WGS84)
+        .initialize_projection()
+        .unwrap();
     let aeqd = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::WGS84).unwrap();
 
     let (lon, lat) = (25.0, 45.0);
