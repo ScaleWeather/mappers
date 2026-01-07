@@ -78,8 +78,8 @@ macro_rules! basic_correctness_test {
 #[test]
 fn azimuthal_equidistant() {
     let mut partial_builder = AzimuthalEquidistant::builder();
-    partial_builder.ref_lonlat(30.0, 30.0);
-    let partial_proj = "+proj=aeqd +lon_0=30.0 +lat_0=30.0";
+    partial_builder.ref_lonlat(29.0, 31.0);
+    let partial_proj = "+proj=aeqd +lon_0=29.0 +lat_0=31.0";
 
     basic_correctness_test!(partial_builder, partial_proj);
 }
@@ -89,8 +89,8 @@ fn lambert_conformal_conic() {
     let mut partial_builder = LambertConformalConic::builder();
     partial_builder
         .standard_parallels(30.0, 60.0)
-        .ref_lonlat(30.0, 30.0);
-    let partial_proj = "+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=30.0 +lat_0=30.0";
+        .ref_lonlat(29.0, 31.0);
+    let partial_proj = "+proj=lcc +lat_1=30.0 +lat_2=60.0 +lon_0=29.0 +lat_0=31.0";
 
     basic_correctness_test!(partial_builder, partial_proj);
 }
@@ -98,8 +98,8 @@ fn lambert_conformal_conic() {
 #[test]
 fn lcc_single_par() {
     let mut partial_builder = LambertConformalConic::builder();
-    partial_builder.single_parallel(40.0).ref_lonlat(30.0, 30.0);
-    let partial_proj = "+proj=lcc +lat_1=40.0 +lat_2=40.0 +lon_0=30.0 +lat_0=30.0";
+    partial_builder.single_parallel(40.0).ref_lonlat(29.0, 31.0);
+    let partial_proj = "+proj=lcc +lat_1=40.0 +lat_2=40.0 +lon_0=29.0 +lat_0=31.0";
 
     basic_correctness_test!(partial_builder, partial_proj);
 }

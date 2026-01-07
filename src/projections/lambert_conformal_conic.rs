@@ -109,7 +109,7 @@ impl LambertConformalConicBuilder {
     /// - absolute value of sum of standard parallels is not positive |`std_par_1` + `std_par_2`| == 0.
     pub fn initialize_projection(&self) -> Result<LambertConformalConic, ProjectionError> {
         let ref_lon = unpack_required_parameter!(self, ref_lon);
-        let ref_lat = unpack_required_parameter!(self, ref_lon);
+        let ref_lat = unpack_required_parameter!(self, ref_lat);
         let std_par_1 = unpack_required_parameter!(self, std_parallel_1);
         let std_par_2 = unpack_required_parameter!(self, std_parallel_2);
         let ellps = self.ellipsoid;
