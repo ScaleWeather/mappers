@@ -22,10 +22,14 @@
 //!#
 //!# fn main() -> Result<(), ProjectionError> {
 //! // First, we define the projection
+//! // Projections are constructed with builders
 //!
 //! // We use LCC with reference longitude centered on France
-//! // parallels set for Europe and WGS84 ellipsoid
-//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+//! // parallels set for Europe and WGS84 ellipsoid (defined by default)
+//! let lcc = LambertConformalConic::builder()
+//!     .ref_lonlat(30., 30.)
+//!     .standard_parallels(30., 60.)
+//!     .initialize_projection()?;
 //!
 //! // Second, we define the coordinates of Mount Blanc
 //! let (lon, lat) = (6.8651, 45.8326);
@@ -47,7 +51,10 @@
 //!#
 //!# fn main() -> Result<(), ProjectionError> {
 //! // We again start with defining the projection
-//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+//! let lcc = LambertConformalConic::builder()
+//!     .ref_lonlat(30., 30.)
+//!     .standard_parallels(30., 60.)
+//!     .initialize_projection()?;
 //!
 //! // We take the previously projected coordinates
 //! let (x, y) = (364836.4407792019, 5421073.726335758);
@@ -86,7 +93,12 @@
 //! // We start by defining the source and target projections
 //! // In this case we will use LCC and LongitudeLatitude
 //! // to show how a normal projection can be done with ConversionPipe
-//! let target_proj = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+//! let target_proj = LambertConformalConic::builder()
+//!     .ref_lonlat(30., 30.)
+//!     .standard_parallels(30., 60.)
+//!     .initialize_projection()?;
+//! 
+//! // LongitudeLatitude projection is an empty struct
 //! let source_proj = LongitudeLatitude;
 //!
 //! let (lon, lat) = (6.8651, 45.8326);
