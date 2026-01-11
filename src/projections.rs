@@ -12,6 +12,4 @@ pub use equidistant_cylindrical::EquidistantCylindrical;
 pub use lambert_conformal_conic::LambertConformalConic;
 pub use lon_lat::LongitudeLatitude;
 pub use modified_azimuthal_equidistant::ModifiedAzimuthalEquidistant;
-pub use equidistant_cylindrical::EquidistantCylindrical;
-pub use lon_lat::LongitudeLatitude;
 pub use oblique_lon_lat::ObliqueLonLat;

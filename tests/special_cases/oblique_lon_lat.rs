@@ -13,9 +13,11 @@ pub(crate) fn basic_correctness() {
     for pole_lon in (-180..180).step_by(60) {
         for pole_lat in (-90..90).step_by(60) {
             for central_lon in (-180..180).step_by(60) {
-                let int_proj =
-                    ObliqueLonLat::new(pole_lon as f64, pole_lat as f64, Some(central_lon as f64))
-                        .unwrap();
+                let int_proj = ObliqueLonLat::builder()
+                    .pole_lonlat(pole_lon as f64, pole_lat as f64)
+                    .central_lon(central_lon as f64)
+                    .initialize_projection()
+                    .unwrap();
 
                 let proj_str = format!(
                     "+ellps=sphere +proj=ob_tran +o_proj=latlon +o_lat_p={} +o_lon_p={} +lon_0={}",
