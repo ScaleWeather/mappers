@@ -4,9 +4,11 @@ use mappers::{projections::ModifiedAzimuthalEquidistant, Ellipsoid, Projection};
 pub(crate) fn basic_correctness() {
     // This projection has to be tested with numerical example provided in Snyder
     // as it is not implemented in Proj
-    let proj =
-        ModifiedAzimuthalEquidistant::new(145.741_658_9, 15.184_911_94, Ellipsoid::CLARKE1866)
-            .unwrap();
+    let proj = ModifiedAzimuthalEquidistant::builder()
+        .ref_lonlat(145.741_658_9, 15.184_911_94)
+        .ellipsoid(Ellipsoid::CLARKE1866)
+        .initialize_projection()
+        .unwrap();
 
     let (x, y) = proj.project(145.793_030_0, 15.246_525_83).unwrap();
 

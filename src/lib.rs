@@ -15,17 +15,21 @@
 //! ## Usage example
 //!
 //! We can project the geographical coordinates to cartographic
-//! coordinates on a map with sepcified projection as follows:
+//! coordinates on a map with one of implemented [`projections`] as follows:
 //!
 //!```
 //!# use mappers::{Ellipsoid, projections::LambertConformalConic, Projection, ProjectionError};
 //!#
 //!# fn main() -> Result<(), ProjectionError> {
 //! // First, we define the projection
+//! // Projections are constructed with builders
 //!
 //! // We use LCC with reference longitude centered on France
-//! // parallels set for Europe and WGS84 ellipsoid
-//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+//! // parallels set for Europe and WGS84 ellipsoid (defined by default)
+//! let lcc = LambertConformalConic::builder()
+//!     .ref_lonlat(30., 30.)
+//!     .standard_parallels(30., 60.)
+//!     .initialize_projection()?;
 //!
 //! // Second, we define the coordinates of Mount Blanc
 //! let (lon, lat) = (6.8651, 45.8326);
@@ -47,7 +51,10 @@
 //!#
 //!# fn main() -> Result<(), ProjectionError> {
 //! // We again start with defining the projection
-//! let lcc = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+//! let lcc = LambertConformalConic::builder()
+//!     .ref_lonlat(30., 30.)
+//!     .standard_parallels(30., 60.)
+//!     .initialize_projection()?;
 //!
 //! // We take the previously projected coordinates
 //! let (x, y) = (364836.4407792019, 5421073.726335758);
@@ -66,7 +73,7 @@
 //! However, in practice limitations of floating-point arithmetics will
 //! introduce some errors along the way, as shown in the example above.
 //!
-//! ## ConversionPipe
+//! ## `ConversionPipe`
 //!
 //! This crate also provides a struct [`ConversionPipe`] that allows for easy
 //! conversion between two projections. It can be constructed directly from
@@ -86,7 +93,12 @@
 //! // We start by defining the source and target projections
 //! // In this case we will use LCC and LongitudeLatitude
 //! // to show how a normal projection can be done with ConversionPipe
-//! let target_proj = LambertConformalConic::new(2.0, 0.0, 30.0, 60.0, Ellipsoid::WGS84)?;
+//! let target_proj = LambertConformalConic::builder()
+//!     .ref_lonlat(30., 30.)
+//!     .standard_parallels(30., 60.)
+//!     .initialize_projection()?;
+//!
+//! // LongitudeLatitude projection is an empty struct
 //! let source_proj = LongitudeLatitude;
 //!
 //! let (lon, lat) = (6.8651, 45.8326);
@@ -103,8 +115,23 @@
 //!# Ok(())
 //!# }
 //!```
+//!
+//! ## Tracing
+//! Functions that are likely to be called in a complex chain of computations,
+//! namely `project()`/`inverse_project()` (checked and unchecked) from [`Projection`] trait and
+//! `convert()` (checked and unchecked) from [`ConversionPipe`], implement `instrument` macro from
+//! `tracing` macro for easier debugging.
+//!
+//! This functionality must be enabled with `tracing` feature.
+//!
+//! These functions themselves don't emit any tracing messages so to get the information provided
+//! by the `instrument` macro, tracing subscriber should be configured to show span events.
+//! This can be achieved using, for example `.with_span_events(FmtSpan::FULL)`.
 
 use std::fmt::Debug;
+
+#[cfg(feature = "tracing")]
+use tracing::instrument;
 
 pub use ellipsoids::Ellipsoid;
 pub use errors::ProjectionError;
@@ -118,6 +145,8 @@ pub mod projections;
 /// This trait is kept relatively simple and the most basic version of
 /// projection functions are implemented. Alternative functions for more complex
 /// types should be implemented by the user.
+///
+/// Available projections are available in [`projections`] module documentation.
 pub trait Projection: Debug + Send + Sync + Copy + Clone + PartialEq + PartialOrd {
     /// Function to project geographical coordinates (in degrees) to cartographical
     /// coordinates (in meters) on a map with specified projection.
@@ -127,6 +156,7 @@ pub trait Projection: Debug + Send + Sync + Copy + Clone + PartialEq + PartialOr
     /// Returns [`ProjectionError::ProjectionImpossible`] when result of
     /// projection is not finite.
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn project(&self, lon: f64, lat: f64) -> Result<(f64, f64), ProjectionError> {
         let (x, y) = self.project_unchecked(lon, lat);
 
@@ -146,6 +176,7 @@ pub trait Projection: Debug + Send + Sync + Copy + Clone + PartialEq + PartialOr
     /// Returns [`ProjectionError::InverseProjectionImpossible`] when result of
     /// inverse projection is not finite.
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn inverse_project(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let (lon, lat) = self.inverse_project_unchecked(x, y);
 
@@ -207,6 +238,7 @@ impl<S: Projection, T: Projection> ConversionPipe<S, T> {
     /// This function uses checked projection methods and returns [`ProjectionError`] if any step
     /// emits non-finite values.
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     pub fn convert(&self, x: f64, y: f64) -> Result<(f64, f64), ProjectionError> {
         let (lon, lat) = self.source.inverse_project(x, y)?;
         self.target.project(lon, lat)
@@ -214,6 +246,7 @@ impl<S: Projection, T: Projection> ConversionPipe<S, T> {
 
     /// Converts the coordinates from source to target projection without checking the result.
     #[inline]
+    #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     pub fn convert_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
         let (lon, lat) = self.source.inverse_project_unchecked(x, y);
         self.target.project_unchecked(lon, lat)

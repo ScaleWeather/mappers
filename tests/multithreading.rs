@@ -8,7 +8,11 @@ use mappers::{
 
 #[test]
 fn arc_interop() {
-    let proj = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::WGS84).unwrap();
+    let proj = AzimuthalEquidistant::builder()
+        .ref_lonlat(30., 30.)
+        .ellipsoid(Ellipsoid::WGS84)
+        .initialize_projection()
+        .unwrap();
     let proj = Arc::new(proj);
     let mut handles = vec![];
 
@@ -37,8 +41,17 @@ fn arc_interop() {
 #[test]
 fn conversion_arc_interop() {
     let ll = LongitudeLatitude;
-    let lcc = LambertConformalConic::new(30.0, 30.0, 30.0, 60.0, Ellipsoid::WGS84).unwrap();
-    let aeqd = AzimuthalEquidistant::new(30.0, 30.0, Ellipsoid::WGS84).unwrap();
+    let lcc = LambertConformalConic::builder()
+        .ref_lonlat(30., 30.)
+        .standard_parallels(30., 60.)
+        .ellipsoid(Ellipsoid::WGS84)
+        .initialize_projection()
+        .unwrap();
+    let aeqd = AzimuthalEquidistant::builder()
+        .ref_lonlat(30., 30.)
+        .ellipsoid(Ellipsoid::WGS84)
+        .initialize_projection()
+        .unwrap();
 
     let ll = Arc::new(ll);
     let lcc = Arc::new(lcc);
@@ -54,9 +67,7 @@ fn conversion_arc_interop() {
         let handle = thread::spawn(move || {
             let (lcc_x, lcc_y) = ll.pipe_to(&*lcc).convert(25.0, 45.0).unwrap();
             let (aeqd_x, aeqd_y) = lcc.pipe_to(&*aeqd).convert(lcc_x, lcc_y).unwrap();
-            let coords = aeqd.pipe_to(&*ll).convert(aeqd_x, aeqd_y).unwrap();
-
-            coords
+            aeqd.pipe_to(&*ll).convert(aeqd_x, aeqd_y).unwrap()
         });
         handles.push(handle);
     }
