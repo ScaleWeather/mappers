@@ -69,14 +69,14 @@ impl Default for EquidistantCylindricalBuilder {
 
 impl EquidistantCylindricalBuilder {
     /// *(required)* Sets reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
-    pub fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
+    pub const fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
         self.ref_lon = Some(lon);
         self.ref_lat = Some(lat);
         self
     }
 
     /// *(optional)* Sets reference standard parallel along which scale is true, defaults to `0.0`.
-    pub fn standard_parallel(&mut self, std_par: f64) -> &mut Self {
+    pub const fn standard_parallel(&mut self, std_par: f64) -> &mut Self {
         self.std_par = std_par;
         self
     }

@@ -71,28 +71,28 @@ impl Default for LambertConformalConicBuilder {
 
 impl LambertConformalConicBuilder {
     /// *(required, alternative with [`standard_parallels`](LambertConformalConicBuilder::standard_parallels))* Sets first and second standard parallel (latitude) to the same value. Scale is true along that parallel.
-    pub fn single_parallel(&mut self, standard_parallel: f64) -> &mut Self {
+    pub const fn single_parallel(&mut self, standard_parallel: f64) -> &mut Self {
         self.std_parallel_1 = Some(standard_parallel);
         self.std_parallel_2 = Some(standard_parallel);
         self
     }
 
     /// *(required, alternative with [`single_parallel`](LambertConformalConicBuilder::single_parallel))* Sets first and second standard parallel (latitude). Scale is true along those two standard parallels.
-    pub fn standard_parallels(&mut self, std_parallel_1: f64, std_parallel_2: f64) -> &mut Self {
+    pub const fn standard_parallels(&mut self, std_parallel_1: f64, std_parallel_2: f64) -> &mut Self {
         self.std_parallel_1 = Some(std_parallel_1);
         self.std_parallel_2 = Some(std_parallel_2);
         self
     }
 
     /// *(required)* Sets reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
-    pub fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
+    pub const fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
         self.ref_lon = Some(lon);
         self.ref_lat = Some(lat);
         self
     }
 
     /// *(optional)* Sets reference [`Ellipsoid`], defaults to [`WGS84`](Ellipsoid::WGS84).
-    pub fn ellipsoid(&mut self, ellps: Ellipsoid) -> &mut Self {
+    pub const fn ellipsoid(&mut self, ellps: Ellipsoid) -> &mut Self {
         self.ellipsoid = ellps;
         self
     }
@@ -172,7 +172,7 @@ impl Projection for LambertConformalConic {
         let rho = rho(self.big_f, t, self.n, self.ellps);
 
         let x = rho * theta.sin();
-        let y = self.rho_0 - rho * theta.cos();
+        let y = rho.mul_add(-theta.cos(), self.rho_0);
 
         (x, y)
     }
@@ -180,7 +180,7 @@ impl Projection for LambertConformalConic {
     #[inline]
     #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
-        let rho = (self.n.signum()) * (x.powi(2) + (self.rho_0 - y).powi(2)).sqrt();
+        let rho = (self.n.signum()) * x.hypot(self.rho_0 - y);
 
         let theta;
         {
@@ -202,12 +202,12 @@ impl Projection for LambertConformalConic {
 }
 
 fn t(phi: f64, ellps: Ellipsoid) -> f64 {
-    ((FRAC_PI_4 - 0.5 * phi).tan())
-        / (((1.0 - ellps.E * phi.sin()) / (1.0 + ellps.E * phi.sin())).powf(ellps.E / 2.0))
+    (0.5f64.mul_add(-phi, FRAC_PI_4).tan())
+        / ((ellps.E.mul_add(-phi.sin(), 1.0) / ellps.E.mul_add(phi.sin(), 1.0)).powf(ellps.E / 2.0))
 }
 
 fn m(phi: f64, ellps: Ellipsoid) -> f64 {
-    phi.cos() / (1.0 - (ellps.E.powi(2) * (phi.sin()).powi(2))).sqrt()
+    phi.cos() / ellps.E.powi(2).mul_add(-(phi.sin()).powi(2), 1.0).sqrt()
 }
 
 fn n(m_1: f64, m_2: f64, t_1: f64, t_2: f64) -> f64 {
@@ -227,23 +227,18 @@ fn rho(big_f: f64, t: f64, n: f64, ellps: Ellipsoid) -> f64 {
 /// optimisations for reducing trigonometric
 /// functions calls.
 fn phi_for_inverse(t: f64, ellps: Ellipsoid) -> f64 {
-    let chi = FRAC_PI_2 - 2.0 * t.atan();
+    let chi = 2.0f64.mul_add(-t.atan(), FRAC_PI_2);
 
-    let big_a = (ellps.E.powi(2) / 2.0)
-        + 5.0 * (ellps.E.powi(4) / 24.0)
-        + (ellps.E.powi(6) / 12.0)
-        + 13.0 * (ellps.E.powi(8) / 360.0);
+    let big_a = 13.0f64.mul_add(ellps.E.powi(8) / 360.0, 5.0f64.mul_add(ellps.E.powi(4) / 24.0, ellps.E.powi(2) / 2.0) + (ellps.E.powi(6) / 12.0));
 
-    let big_b = 7.0 * (ellps.E.powi(4) / 48.0)
-        + 29.0 * (ellps.E.powi(6) / 240.0)
-        + 811.0 * (ellps.E.powi(8) / 11520.0);
+    let big_b = 811.0f64.mul_add(ellps.E.powi(8) / 11520.0, 7.0f64.mul_add(ellps.E.powi(4) / 48.0, 29.0 * (ellps.E.powi(6) / 240.0)));
 
-    let big_c = 7.0 * (ellps.E.powi(6) / 120.0) + 81.0 * (ellps.E.powi(8) / 1120.0);
+    let big_c = 7.0f64.mul_add(ellps.E.powi(6) / 120.0, 81.0 * (ellps.E.powi(8) / 1120.0));
 
     let big_d = 4279.0 * (ellps.E.powi(8) / 161_280.0);
 
     let a_prime = big_a - big_c;
-    let b_prime = 2.0 * big_b - 4.0 * big_d;
+    let b_prime = 2.0f64.mul_add(big_b, -(4.0 * big_d));
     let c_prime = 4.0 * big_c;
     let d_prime = 8.0 * big_d;
 

@@ -46,11 +46,11 @@ impl Ellipsoid {
             .sqrt()
             .to_f64();
 
-        Ellipsoid { A, B, E, F }
+        Self { A, B, E, F }
     }
 
     /// Ellipsoid for a sphere with radius of 6,370,997.0 meters.
-    pub const SPHERE: Ellipsoid = Ellipsoid {
+    pub const SPHERE: Self = Self {
         A: 6_370_997.0,
         B: 6_370_997.0,
         E: 0.0,
@@ -58,33 +58,33 @@ impl Ellipsoid {
     };
 
     /// World Geodetic System 1984 (WGS84) ellipsoid (EPSG:7030).
-    pub const WGS84: Ellipsoid = Ellipsoid::new(6_378_137.0, 298.257_223_563);
+    pub const WGS84: Self = Self::new(6_378_137.0, 298.257_223_563);
 
     /// Geodetic Reference System 1980 (GRS 1980) ellipsoid (EPSG:7019).
-    pub const GRS80: Ellipsoid = Ellipsoid::new(6_378_137.0, 298.257_222_101);
+    pub const GRS80: Self = Self::new(6_378_137.0, 298.257_222_101);
 
     /// World Geodetic System 1972 (WGS72) ellipsoid (EPSG:7043).
-    pub const WGS72: Ellipsoid = Ellipsoid::new(6_378_135.0, 298.26);
+    pub const WGS72: Self = Self::new(6_378_135.0, 298.26);
 
     /// Geodetic Reference System 1967 (GRS 1967) ellipsoid (EPSG:7036).
-    pub const GRS67: Ellipsoid = Ellipsoid::new(6_378_160.0, 298.247_167_427);
+    pub const GRS67: Self = Self::new(6_378_160.0, 298.247_167_427);
 
     /// Airy 1830 ellipsoid (EPSG:7001).
-    pub const AIRY1830: Ellipsoid = Ellipsoid::new(6_377_563.396, 299.324_964_6);
+    pub const AIRY1830: Self = Self::new(6_377_563.396, 299.324_964_6);
 
     /// World Geodetic System 1966 (WGS66) ellipsoid.
-    pub const WGS66: Ellipsoid = Ellipsoid::new(6_378_145.0, 298.25);
+    pub const WGS66: Self = Self::new(6_378_145.0, 298.25);
 
     /// World Geodetic System 1960 (WGS60) ellipsoid.
-    pub const WGS60: Ellipsoid = Ellipsoid::new(6_378_165.0, 298.3);
+    pub const WGS60: Self = Self::new(6_378_165.0, 298.3);
 
     /// Clarke 1866 ellipsoid (EPSG:7008).
-    pub const CLARKE1866: Ellipsoid = Ellipsoid::new(6_378_206.4, 294.978_698_2);
+    pub const CLARKE1866: Self = Self::new(6_378_206.4, 294.978_698_2);
 }
 
 impl From<Geodesic> for Ellipsoid {
     fn from(geod: Geodesic) -> Self {
-        Ellipsoid {
+        Self {
             A: geod.a,
             B: geod._b,
             E: (1.0 - (geod._b.powi(2) / geod.a.powi(2))).sqrt(),
@@ -94,8 +94,8 @@ impl From<Geodesic> for Ellipsoid {
 }
 
 impl From<Ellipsoid> for Geodesic {
-    fn from(ellps: Ellipsoid) -> Geodesic {
-        Geodesic::new(ellps.A, ellps.F)
+    fn from(ellps: Ellipsoid) -> Self {
+        Self::new(ellps.A, ellps.F)
     }
 }
 

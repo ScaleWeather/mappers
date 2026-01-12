@@ -82,14 +82,14 @@ impl Default for ModifiedAzimuthalEquidistantBuilder {
 
 impl ModifiedAzimuthalEquidistantBuilder {
     /// *(required)* Sets reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
-    pub fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
+    pub const fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
         self.ref_lon = Some(lon);
         self.ref_lat = Some(lat);
         self
     }
 
     /// *(optional)* Sets reference [`Ellipsoid`], defaults to [`WGS84`](Ellipsoid::WGS84).
-    pub fn ellipsoid(&mut self, ellps: Ellipsoid) -> &mut Self {
+    pub const fn ellipsoid(&mut self, ellps: Ellipsoid) -> &mut Self {
         self.ellipsoid = ellps;
         self
     }
@@ -121,8 +121,8 @@ impl ModifiedAzimuthalEquidistantBuilder {
         let lon_0 = ref_lon.to_radians();
         let lat_0 = ref_lat.to_radians();
 
-        let n_1 = ellps.A / (1.0 - (ellps.E.powi(2) * (lat_0.sin()).powi(2))).sqrt();
-        let g = ellps.E * lat_0.sin() / (1.0 - ellps.E.powi(2)).sqrt();
+        let n_1 = ellps.A / ellps.E.powi(2).mul_add(-(lat_0.sin()).powi(2), 1.0).sqrt();
+        let g = ellps.E * lat_0.sin() / ellps.E.mul_add(-ellps.E, 1.0).sqrt();
 
         Ok(ModifiedAzimuthalEquidistant {
             lon_0,
@@ -142,17 +142,16 @@ impl Projection for ModifiedAzimuthalEquidistant {
         let lon = lon.to_radians();
         let lat = lat.to_radians();
 
-        let n = self.ellps.A / (1.0 - (self.ellps.E.powi(2) * (lat.sin()).powi(2))).sqrt();
+        let n = self.ellps.A / self.ellps.E.powi(2).mul_add(-(lat.sin()).powi(2), 1.0).sqrt();
 
-        let psi = (((1.0 - self.ellps.E.powi(2)) * lat.tan())
-            + ((self.ellps.E.powi(2) * self.n_1 * self.lat_0.sin()) / (n * lat.cos())))
+        let psi = self.ellps.E.mul_add(-self.ellps.E, 1.0).mul_add(lat.tan(), (self.ellps.E.powi(2) * self.n_1 * self.lat_0.sin()) / (n * lat.cos()))
         .atan();
 
         let az = ((lon - self.lon_0).sin())
-            .atan2((self.lat_0.cos() * psi.tan()) - (self.lat_0.sin() * (lon - self.lon_0).cos()));
+            .atan2(self.lat_0.cos().mul_add(psi.tan(), -(self.lat_0.sin() * (lon - self.lon_0).cos())));
 
         let s = if approx_eq!(f64, az.sin(), 0.0) {
-            ((self.lat_0.cos() * psi.sin()) - (self.lat_0.sin() * psi.cos()))
+            self.lat_0.cos().mul_add(psi.sin(), -(self.lat_0.sin() * psi.cos()))
                 .asin()
                 .abs()
                 * az.cos().signum()
@@ -160,15 +159,10 @@ impl Projection for ModifiedAzimuthalEquidistant {
             (((lon - self.lon_0).sin() * psi.cos()) / (az.sin())).asin()
         };
 
-        let h = self.ellps.E * self.lat_0.cos() * az.cos() / (1.0 - self.ellps.E.powi(2)).sqrt();
+        let h = self.ellps.E * self.lat_0.cos() * az.cos() / self.ellps.E.mul_add(-self.ellps.E, 1.0).sqrt();
 
         let c = (self.n_1 * s)
-            * (1.0 - (s.powi(2) * h.powi(2) * (1.0 - h.powi(2)) / 6.0)
-                + ((s.powi(3) / 8.0) * self.g * h * (1.0 - 2.0 * h.powi(2)))
-                + ((s.powi(4) / 120.0)
-                    * ((h.powi(2) * (4.0 - 7.0 * h.powi(2)))
-                        - (3.0 * self.g.powi(2) * (1.0 - 7.0 * h.powi(2)))))
-                - ((s.powi(5) / 48.0) * self.g * h));
+            * ((s.powi(5) / 48.0) * self.g).mul_add(-h, (s.powi(4) / 120.0).mul_add(h.powi(2).mul_add(7.0f64.mul_add(-h.powi(2), 4.0), -(3.0 * self.g.powi(2) * 7.0f64.mul_add(-h.powi(2), 1.0))), ((s.powi(3) / 8.0) * self.g * h).mul_add(2.0f64.mul_add(-h.powi(2), 1.0), 1.0 - (s.powi(2) * h.powi(2) * h.mul_add(-h, 1.0) / 6.0))));
 
         let x = c * az.sin();
         let y = c * az.cos();
@@ -179,12 +173,12 @@ impl Projection for ModifiedAzimuthalEquidistant {
     #[inline]
     #[cfg_attr(feature = "tracing", instrument(level = "trace"))]
     fn inverse_project_unchecked(&self, x: f64, y: f64) -> (f64, f64) {
-        let c = (x * x + y * y).sqrt();
+        let c = x.hypot(y);
         let az = x.atan2(y);
 
         let big_a =
             -self.ellps.E * self.ellps.E * ((self.lat_0.cos()).powi(2)) * ((az.cos()).powi(2))
-                / (1.0 - self.ellps.E * self.ellps.E);
+                / self.ellps.E.mul_add(-self.ellps.E, 1.0);
         let big_b = 3.0
             * self.ellps.E
             * self.ellps.E
@@ -192,20 +186,20 @@ impl Projection for ModifiedAzimuthalEquidistant {
             * self.lat_0.sin()
             * self.lat_0.cos()
             * az.cos()
-            / (1.0 - self.ellps.E * self.ellps.E);
+            / self.ellps.E.mul_add(-self.ellps.E, 1.0);
         let big_d = c / self.n_1;
         let big_e = big_d
             - (big_a * (1.0 + big_a) * big_d.powi(3) / 6.0)
-            - (big_b * (1.0 + 3.0 * big_a) * big_d.powi(4) / 24.0);
+            - (big_b * 3.0f64.mul_add(big_a, 1.0) * big_d.powi(4) / 24.0);
         let big_f = 1.0 - (big_a * big_e * big_e / 2.0) - (big_b * big_e.powi(3) / 6.0);
 
         let psi =
-            ((self.lat_0.sin() * big_e.cos()) + (self.lat_0.cos() * big_e.sin() * az.cos())).asin();
+            self.lat_0.sin().mul_add(big_e.cos(), self.lat_0.cos() * big_e.sin() * az.cos()).asin();
 
         let lon = self.lon_0 + (az.sin() * big_e.sin() / psi.cos()).asin();
         let lat = ((1.0 - (self.ellps.E * self.ellps.E * big_f * self.lat_0.sin() / psi.sin()))
             * psi.tan()
-            / (1.0 - self.ellps.E * self.ellps.E))
+            / self.ellps.E.mul_add(-self.ellps.E, 1.0))
             .atan();
 
         let lon = lon.to_degrees();

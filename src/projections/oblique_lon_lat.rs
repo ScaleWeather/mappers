@@ -61,14 +61,14 @@ impl Default for ObliqueLonLatBuilder {
 
 impl ObliqueLonLatBuilder {
     /// *(required)* Sets the longitude and latitude of the rotated pole.
-    pub fn pole_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
+    pub const fn pole_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
         self.pole_lon = Some(lon);
         self.pole_lat = Some(lat);
         self
     }
 
     /// *(optional)* Sets the central meridian longitude, defaults to `0.0`.
-    pub fn central_lon(&mut self, lon: f64) -> &mut Self {
+    pub const fn central_lon(&mut self, lon: f64) -> &mut Self {
         self.central_lon = lon;
         self
     }
@@ -114,9 +114,9 @@ impl ObliqueLonLatBuilder {
 fn adjust_lon(lon: f64) -> f64 {
     let pi_degrees = 180.0_f64;
     if lon > pi_degrees {
-        lon - 2.0 * pi_degrees
+        2.0f64.mul_add(-pi_degrees, lon)
     } else if lon < -pi_degrees {
-        lon + 2.0 * pi_degrees
+        2.0f64.mul_add(pi_degrees, lon)
     } else {
         lon
     }
@@ -136,11 +136,11 @@ impl Projection for ObliqueLonLat {
 
         // Formula (5-8b) of [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395)
         let lambda_prime = (cos_phi * sin_lambda)
-            .atan2(self.sin_phi_p * cos_phi * cos_lambda + self.cos_phi_p * sin_phi)
+            .atan2((self.sin_phi_p * cos_phi).mul_add(cos_lambda, self.cos_phi_p * sin_phi))
             + self.lambda_p;
 
         // Formula (5-7)
-        let phi_prime = (self.sin_phi_p * sin_phi - self.cos_phi_p * cos_phi * cos_lambda).asin();
+        let phi_prime = self.sin_phi_p.mul_add(sin_phi, -(self.cos_phi_p * cos_phi * cos_lambda)).asin();
 
         let lon_prime = adjust_lon(lambda_prime.to_degrees());
         let lat_prime = phi_prime.to_degrees();
@@ -160,12 +160,11 @@ impl Projection for ObliqueLonLat {
 
         // Formula (5-10b)
         let lambda = (cos_phi_prime * sin_lambda_prime).atan2(
-            self.sin_phi_p * cos_phi_prime * cos_lambda_prime - self.cos_phi_p * sin_phi_prime,
+            (self.sin_phi_p * cos_phi_prime).mul_add(cos_lambda_prime, -(self.cos_phi_p * sin_phi_prime)),
         );
 
         // Formula (5-9)
-        let phi = (self.sin_phi_p * sin_phi_prime
-            + self.cos_phi_p * cos_phi_prime * cos_lambda_prime)
+        let phi = self.sin_phi_p.mul_add(sin_phi_prime, self.cos_phi_p * cos_phi_prime * cos_lambda_prime)
             .asin();
 
         let lon = adjust_lon(lambda.to_degrees() + self.lon_0);

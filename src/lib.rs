@@ -219,7 +219,7 @@ pub struct ConversionPipe<S: Projection, T: Projection> {
 
 impl<S: Projection, T: Projection> ConversionPipe<S, T> {
     /// Creates a new conversion pipe from source to target projection.
-    pub fn new(source: &S, target: &T) -> Self {
+    pub const fn new(source: &S, target: &T) -> Self {
         Self {
             source: *source,
             target: *target,
@@ -227,7 +227,7 @@ impl<S: Projection, T: Projection> ConversionPipe<S, T> {
     }
 
     /// Reverse the direction of conversion.
-    pub fn invert(&self) -> ConversionPipe<T, S> {
+    pub const fn invert(&self) -> ConversionPipe<T, S> {
         ConversionPipe::new(&self.target, &self.source)
     }
 

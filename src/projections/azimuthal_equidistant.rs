@@ -76,14 +76,14 @@ impl Default for AzimuthalEquidistantBuilder {
 
 impl AzimuthalEquidistantBuilder {
     /// *(required)* Sets reference longitude and latitude. Point (0, 0) on the map will be at this coordinates.
-    pub fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
+    pub const fn ref_lonlat(&mut self, lon: f64, lat: f64) -> &mut Self {
         self.ref_lon = Some(lon);
         self.ref_lat = Some(lat);
         self
     }
 
     /// *(optional)* Sets reference [`Ellipsoid`], defaults to [`WGS84`](Ellipsoid::WGS84).
-    pub fn ellipsoid(&mut self, ellps: Ellipsoid) -> &mut Self {
+    pub const fn ellipsoid(&mut self, ellps: Ellipsoid) -> &mut Self {
         self.ellipsoid = ellps;
         self
     }
