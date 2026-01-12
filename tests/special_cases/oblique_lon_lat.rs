@@ -1,10 +1,10 @@
-use float_cmp::assert_approx_eq;
-use mappers::projections::ObliqueLonLat;
-use mappers::Projection;
-use proj::Proj;
 use crate::GLOBAL_GEO_POINTS;
 use crate::LOCAL_GEO_POINTS;
 use crate::TestExtent;
+use float_cmp::assert_approx_eq;
+use mappers::Projection;
+use mappers::projections::ObliqueLonLat;
+use proj::Proj;
 
 pub(crate) fn basic_correctness() {
     // This projection does not depend on ellipsoid
@@ -66,4 +66,4 @@ fn test_points_with_proj(int_proj: &ObliqueLonLat, proj_str: &str, extent: TestE
         assert_approx_eq!(f64, ref_lon, tst_lon, epsilon = 0.000_000_1);
         assert_approx_eq!(f64, ref_lat, tst_lat, epsilon = 0.000_000_1);
     }
-} 
+}

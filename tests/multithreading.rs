@@ -2,8 +2,8 @@ use std::{sync::Arc, thread};
 
 use float_cmp::assert_approx_eq;
 use mappers::{
-    projections::{AzimuthalEquidistant, LambertConformalConic, LongitudeLatitude},
     Ellipsoid, Projection,
+    projections::{AzimuthalEquidistant, LambertConformalConic, LongitudeLatitude},
 };
 
 #[test]

@@ -1,5 +1,5 @@
 use float_cmp::assert_approx_eq;
-use mappers::{projections::ModifiedAzimuthalEquidistant, Ellipsoid, Projection};
+use mappers::{Ellipsoid, Projection, projections::ModifiedAzimuthalEquidistant};
 
 pub(crate) fn basic_correctness() {
     // This projection has to be tested with numerical example provided in Snyder

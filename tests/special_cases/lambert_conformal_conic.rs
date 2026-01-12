@@ -1,4 +1,4 @@
-use mappers::{projections::LambertConformalConic, Ellipsoid, ProjectionError};
+use mappers::{Ellipsoid, ProjectionError, projections::LambertConformalConic};
 
 #[test]
 fn test_constructor() {

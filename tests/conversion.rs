@@ -1,7 +1,7 @@
 use float_cmp::assert_approx_eq;
 use mappers::{
-    projections::{AzimuthalEquidistant, LambertConformalConic, LongitudeLatitude},
     Ellipsoid, Projection,
+    projections::{AzimuthalEquidistant, LambertConformalConic, LongitudeLatitude},
 };
 
 const TOLERANCE: f64 = 1e-5;

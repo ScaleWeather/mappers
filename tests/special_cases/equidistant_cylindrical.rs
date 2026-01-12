@@ -1,5 +1,5 @@
-use crate::test_points_with_proj;
 use crate::TestExtent;
+use crate::test_points_with_proj;
 use mappers::projections::EquidistantCylindrical;
 
 pub(crate) fn basic_correctness() {

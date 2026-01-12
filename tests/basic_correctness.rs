@@ -2,8 +2,8 @@ mod special_cases;
 
 use float_cmp::assert_approx_eq;
 use mappers::{
-    projections::{AzimuthalEquidistant, LambertConformalConic},
     Ellipsoid, Projection,
+    projections::{AzimuthalEquidistant, LambertConformalConic},
 };
 use proj::Proj;
 

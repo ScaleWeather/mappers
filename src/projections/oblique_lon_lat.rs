@@ -3,7 +3,7 @@
 //! assumes a position different from the true North Pole. This effectively rotates the
 //! meridian and parallel grid, allowing any point on Earth to serve as the reference
 //! pole of the projection.
-//! 
+//!
 //! The transformation is applied by rotating the spherical coordinate system before
 //! applying standard longitude-latitude coordinates. This is particularly useful for
 //! regional mapping where the area of interest can be positioned optimally relative
@@ -136,8 +136,9 @@ impl Projection for ObliqueLonLat {
 
         // Formula (5-8b) of [Snyder (1987)](https://pubs.er.usgs.gov/publication/pp1395)
         let lambda_prime = (cos_phi * sin_lambda)
-            .atan2(self.sin_phi_p * cos_phi * cos_lambda + self.cos_phi_p * sin_phi) + self.lambda_p;
-        
+            .atan2(self.sin_phi_p * cos_phi * cos_lambda + self.cos_phi_p * sin_phi)
+            + self.lambda_p;
+
         // Formula (5-7)
         let phi_prime = (self.sin_phi_p * sin_phi - self.cos_phi_p * cos_phi * cos_lambda).asin();
 
@@ -158,13 +159,16 @@ impl Projection for ObliqueLonLat {
         let sin_phi_prime = phi_prime.sin();
 
         // Formula (5-10b)
-        let lambda = (cos_phi_prime * sin_lambda_prime)
-            .atan2(self.sin_phi_p * cos_phi_prime * cos_lambda_prime - self.cos_phi_p * sin_phi_prime);
+        let lambda = (cos_phi_prime * sin_lambda_prime).atan2(
+            self.sin_phi_p * cos_phi_prime * cos_lambda_prime - self.cos_phi_p * sin_phi_prime,
+        );
 
         // Formula (5-9)
-        let phi = (self.sin_phi_p * sin_phi_prime + self.cos_phi_p * cos_phi_prime * cos_lambda_prime).asin();
+        let phi = (self.sin_phi_p * sin_phi_prime
+            + self.cos_phi_p * cos_phi_prime * cos_lambda_prime)
+            .asin();
 
-        let lon  = adjust_lon(lambda.to_degrees() + self.lon_0);
+        let lon = adjust_lon(lambda.to_degrees() + self.lon_0);
         let lat = phi.to_degrees();
         (lon, lat)
     }
