@@ -4,7 +4,7 @@ pub mod azimuthal_equidistant;
 pub mod equidistant_cylindrical;
 pub mod lambert_conformal_conic;
 mod lon_lat;
-mod oblique_lon_lat;
+pub mod oblique_lon_lat;
 pub mod modified_azimuthal_equidistant;
 
 pub use azimuthal_equidistant::AzimuthalEquidistant;

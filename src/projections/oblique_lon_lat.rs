@@ -73,7 +73,7 @@ impl ObliqueLonLatBuilder {
         self
     }
 
-    /// ObliqueLonLat projection constructor.
+    /// `ObliqueLonLat` projection constructor.
     ///
     /// To reduce computational overhead of projection functions this
     /// constructor is non-trivial and tries to do as much projection computations as possible.
@@ -143,7 +143,7 @@ impl Projection for ObliqueLonLat {
 
         let lon_prime = adjust_lon(lambda_prime.to_degrees());
         let lat_prime = phi_prime.to_degrees();
-        return (lon_prime, lat_prime);
+        (lon_prime, lat_prime)
     }
 
     #[inline]
@@ -166,6 +166,6 @@ impl Projection for ObliqueLonLat {
 
         let lon  = adjust_lon(lambda.to_degrees() + self.lon_0);
         let lat = phi.to_degrees();
-        return (lon, lat);
+        (lon, lat)
     }
 }
